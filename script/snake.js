@@ -1,3 +1,5 @@
+import {drawBoard, drawEmptyCell, drawSnake} from "./drawer.js";
+
 // -------------------------------
 //			Classes
 // -------------------------------
@@ -12,9 +14,8 @@ class Position {
 		this.y = y;
 	}
 
-	copy(otherPosition) {
-		this.x = otherPosition.x;
-		this.y = otherPosition.y;
+	copy() {
+		return new Position(this.x, this.y);
 	}
 
 }
@@ -23,85 +24,24 @@ class Position {
 //			Functions
 // -------------------------------
 
-function drawCell(x, y) {
-	context.beginPath();
-	context.moveTo(x, y + radius);
-	context.lineTo(x, y + cellSize - radius);
-	context.quadraticCurveTo(x, y + cellSize, x + radius, y + cellSize);
-	context.lineTo(x + cellSize - radius, y + cellSize);
-	context.quadraticCurveTo(x + cellSize, y + cellSize, x + cellSize, y + cellSize - radius);
-	context.lineTo(x + cellSize, y + radius);
-	context.quadraticCurveTo(x + cellSize, y, x + cellSize - radius, y);
-	context.lineTo(x + radius, y);
-	context.quadraticCurveTo(x, y, x, y + radius);
-	context.fill();
-}
+function keyPressed(event, direction, binds) {
 
-function drawEmptyCell(x, y) {
-	context.fillStyle = 'rgba(93, 234, 142)';
-	drawCell(x, y);
-}
+	for (let i = 0; i < binds.length; i++) {
 
-function drawBoard() {
-
-	for (let i = 0; i < boardSize / cellSize; i++) {
-
-		for (let j = 0; j < boardSize / cellSize; j++) {
-
-			drawEmptyCell(i * cellSize, j * cellSize);
-
+		if (binds[i].keys.includes(event.code)) {
+			return binds[i].direction;
 		}
 
 	}
 
+	return direction;
 }
 
-function drawSnakeBody(x, y) {
-	context.fillStyle = 'rgb(169,0,12)';
-	drawCell(x, y);
-}
-
-function drawSnakeHead(x, y, vertical = true) {
-	context.fillStyle = 'rgba(0, 117, 40)';
-	drawCell(x, y);
-
-	context.fillStyle = 'rgb(169,0,12)';
-	let eyeX = x + cellSize / 2;
-	let eyeY = y + cellSize / 2;
-	let shiftX = (vertical ? 0 : 1) * cellSize / 4;
-	let shiftY = (vertical ? 1 : 0) * cellSize / 4;
-	context.beginPath();
-	context.arc(eyeX - shiftX, eyeY - shiftY, cellSize / 7, 0, Math.PI * 2, true);
-	context.arc(eyeX + shiftX, eyeY + shiftY, cellSize / 7, 0, Math.PI * 2, true);
-	context.fill();
-}
-
-function drawSnake() {
-
-	let head = snakePositions[0];
-	drawSnakeHead(head.x, head.y, ['Right', 'Left'].includes(direction));
-
-	for (let i = 1; i < snakePositions.length; i++) {
-		let body = snakePositions[i];
-		drawSnakeBody(body.x, body.y)
-	}
-
-}
-
-function keyPressed(event) {
-
-	binds.filter((bind) => bind.keys.includes(event.code))
-		.forEach((bind) => {
-			direction = bind.direction
-		})
-
-}
-
-function moveSnake() {
+function moveSnake(context, snakePositions, cellSize, radius, direction) {
 
 	for (let i = 0; i < snakePositions.length; i++) {
 		let toEmpty = snakePositions[i];
-		drawEmptyCell(toEmpty.x, toEmpty.y);
+		drawEmptyCell(context, toEmpty.x, toEmpty.y, cellSize, radius);
 	}
 
 	let move = [0, 0];
@@ -126,15 +66,23 @@ function moveSnake() {
 
 	}
 
-	for (let i = snakePositions.length - 1; i > 0; i--) {
-		snakePositions[i] = snakePositions[i - 1];
-	}
-
-	let head = snakePositions[0];
+	let head = snakePositions[0].copy();
 	head.x = head.x + move[0];
 	head.y = head.y + move[1];
-	snakePositions[0] = head;
-	drawSnake();
+
+	let result = false;
+
+	if (0 <= head.x && head.x < boardSize && 0 <= head.y && head.y < boardSize) {
+
+		for (let i = snakePositions.length - 1; i > 0; i--) {
+			snakePositions[i] = snakePositions[i - 1];
+		}
+		snakePositions[0] = head;
+		result = true;
+	}
+
+	drawSnake(context, snakePositions, cellSize, radius, direction);
+	return result;
 }
 
 // -------------------------------
@@ -179,9 +127,9 @@ if (!board.getContext) {
 	stop();
 }
 let context = board.getContext('2d');
-drawBoard(context, 20, 500, 7);
+drawBoard(context, boardSize, cellSize, radius);
 
-drawSnake();
+drawSnake(context, snakePositions, cellSize, radius, direction);
 
-window.addEventListener("keydown", keyPressed);
-setInterval(moveSnake, 150)
+window.addEventListener("keydown", (event) => direction = keyPressed(event, direction, binds));
+setInterval(() => moveSnake(context, snakePositions, cellSize, radius, direction), 150)
