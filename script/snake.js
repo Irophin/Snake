@@ -1,6 +1,5 @@
-import {drawBoard, drawSnake} from "./draw.js";
 import {loadConfiguration} from "./configuration.js";
-import {keyPressed, moveSnake} from "./game.js";
+import {Board, SnakeGame} from "./model.js";
 
 // -------------------------------
 //			Variables
@@ -8,8 +7,6 @@ import {keyPressed, moveSnake} from "./game.js";
 
 let configuration = await loadConfiguration('medium');
 let board = document.querySelector('#board');
-let boardSize = board.getAttribute('height')
-let direction = 'Right';
 let binds = [
 	{
 		'direction': 'Top',
@@ -29,19 +26,14 @@ let binds = [
 	}
 ]
 
-let cellSize = Math.round(boardSize / configuration.dimensions);
-let snake = configuration.snake;
-let delay = configuration.delay;
-let walls = configuration.walls;
-let food = configuration.food;
-
 // -------------------------------
 //			Main script
 // -------------------------------
 
-let context = board.getContext('2d');
-drawBoard(context, boardSize, cellSize, walls, food);
+let boardSize = board.getAttribute('height')
+let drawer = new Board(board.getContext('2d'), boardSize, Math.round(boardSize / configuration.dimensions));
+let game = new SnakeGame(configuration.snake, configuration.walls, configuration.food, configuration.delay, 'Right', binds, drawer);
 
-drawSnake(context, snake, cellSize, direction);
-window.addEventListener("keydown", (event) => direction = keyPressed(event, direction, binds));
-setInterval(() => moveSnake(context, snake, cellSize, direction, boardSize), delay)
+game.start();
+
+window.addEventListener("keydown", (event) => game.keyPressed(event));
