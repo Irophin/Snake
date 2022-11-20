@@ -10,19 +10,23 @@ let board = document.querySelector('#board');
 let binds = [
 	{
 		'direction': 'Top',
-		'keys': ['ArrowUp', 'KeyA', 'KeyQ']
+		'deadDirection': 'Bottom',
+		'keys': ['ArrowUp', 'z']
 	},
 	{
 		'direction': 'Bottom',
-		'keys': ['ArrowDown', 'KeyS']
+		'deadDirection': 'Top',
+		'keys': ['ArrowDown', 's']
 	},
 	{
 		'direction': 'Left',
-		'keys': ['ArrowLeft', 'KeyQ']
+		'deadDirection': 'Right',
+		'keys': ['ArrowLeft', 'q']
 	},
 	{
 		'direction': 'Right',
-		'keys': ['ArrowRight', 'KeyD']
+		'deadDirection': 'Left',
+		'keys': ['ArrowRight', 'd']
 	}
 ]
 
@@ -32,7 +36,7 @@ let binds = [
 
 let boardSize = board.getAttribute('height')
 let drawer = new Board(board.getContext('2d'), boardSize, Math.round(boardSize / configuration.dimensions));
-let game = new SnakeGame(configuration.snake, configuration.walls, configuration.food, configuration.delay, 'Right', binds, drawer);
+let game = new SnakeGame(configuration.snake, configuration.walls, configuration.foods, configuration.delay, 'Right', binds, drawer);
 
 game.start();
 

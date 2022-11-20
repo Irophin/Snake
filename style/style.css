@@ -5,16 +5,14 @@ body {
   justify-content: space-between;
   align-content: center;
   text-align: center;
+  font-family: helvetica, arial, sans-serif;
 }
 
-.row {
-  height: 20px;
+.score {
+  font-size: 2rem;
+  color: #333;
 }
 
-.cell {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border-radius: 5px;
-  background-color: #007528;
+#score-value {
+  color: #007528;
 }

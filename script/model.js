@@ -1,4 +1,4 @@
-export class SnakePosition {
+export class Coordinate {
 
 	x;
 	y;
@@ -7,11 +7,6 @@ export class SnakePosition {
 		this.x = x;
 		this.y = y;
 	}
-
-	add(toAdd) {
-		return new SnakePosition(this.x + toAdd[0], this.y + toAdd[1]);
-	}
-
 }
 
 export class SnakeConfiguration {
@@ -19,14 +14,14 @@ export class SnakeConfiguration {
 	dimensions;
 	delay;
 	walls;
-	food;
+	foods;
 	snake;
 
-	constructor(dimensions, delay, walls, food, snake) {
+	constructor(dimensions, delay, walls, foods, snake) {
 		this.dimensions = dimensions;
 		this.delay = delay;
 		this.walls = walls;
-		this.food = food;
+		this.foods = foods;
 		this.snake = snake;
 	}
 
@@ -35,9 +30,9 @@ export class SnakeConfiguration {
 		return new SnakeConfiguration(
 			json.dimensions[0],
 			json.delay,
-			json.walls.map((position) => new SnakePosition(position[0], position[1])),
-			new SnakePosition(json.food[0][0], json.food[0][1]),
-			json.snake.map((position) => new SnakePosition(position[0], position[1]))
+			json.walls.map((position) => new Coordinate(position[0], position[1])),
+			json.food.map((position) => new Coordinate(position[0], position[1])),
+			json.snake.map((position) => new Coordinate(position[0], position[1]))
 		);
 	}
 
@@ -47,16 +42,19 @@ export class SnakeGame {
 
 	snake;
 	walls;
-	food;
+	foods;
 	delay;
 	direction;
 	binds;
 	board;
+	interval;
 
-	constructor(snake, walls, food, delay, direction, binds, board) {
+	turning = false;
+
+	constructor(snake, walls, foods, delay, direction, binds, board) {
 		this.snake = snake;
 		this.walls = walls;
-		this.food = food;
+		this.foods = foods;
 		this.delay = delay;
 		this.direction = direction;
 		this.binds = binds;
@@ -64,72 +62,108 @@ export class SnakeGame {
 	}
 
 	start() {
-		this.board.drawBoard(this.walls, this.food);
+		this.board.drawBoard(this.walls, this.foods);
 		this.board.drawSnake(this.snake, this.direction);
-		setInterval(() => this.moveSnake(), this.delay)
+		this.updateScore();
+		this.interval = setInterval(() => this.moveSnake(), this.delay)
 	}
 
 	keyPressed(event) {
+		
+		if (this.turning){
+			return;
+		}
+		this.turning = true;
 
 		for (let i = 0; i < this.binds.length; i++) {
 
-			if (this.binds[i].keys.includes(event.code)) {
-				this.direction = this.binds[i].direction;
+			if (this.binds[i].keys.includes(event.key)) {
+				if(this.direction != this.binds[i].deadDirection){
+					this.direction = this.binds[i].direction;
+				}
 			}
-
 		}
-
 	}
 
 	moveSnake() {
 
-		for (let i = 0; i < this.snake.length; i++) {
-			let toEmpty = this.snake[i];
-			this.board.drawEmptyCell(toEmpty.x, toEmpty.y);
-		}
-
-		let move = [0, 0];
+		let head =  { ...this.snake[0] };
 
 		switch (this.direction) {
 
 			case 'Right':
-				move = [1, 0];
+				head.x += 1;
 				break;
 
 			case 'Left':
-				move = [-1, 0];
+				head.x -= 1;
 				break;
 
 			case 'Top':
-				move = [0, -1];
+				head.y -= 1;
 				break;
 
 			case 'Bottom':
-				move = [0, 1];
+				head.y += 1;
 				break;
 
 		}
 
-		let head = this.snake[0].add(move);
+		this.snake.unshift(head);
 
-		if (this.board.isInsideBoard(head) && !this.isWall(head) && !this.isSnake(head)) {
+		if(this.isFood(head)){
+			this.foods.splice(this.foods.indexOf(head), 1);
+			this.generateFood();
+			this.board.drawBoard(this.walls, this.foods);
+			this.updateScore();
+		}else{
+			this.board.drawEmptyCell(this.snake.pop());
+		}
 
-			for (let i = this.snake.length - 1; i > 0; i--) {
-				this.snake[i] = this.snake[i - 1];
-			}
-
-			this.snake[0] = head;
+		if (!this.board.isInsideBoard(head) || this.isWall(head) || this.isSnake(head,true)) {
+			clearInterval(this.interval);
+			alert('Game over');
+			return;
 		}
 
 		this.board.drawSnake(this.snake, this.direction);
+		this.turning = false;
 	}
 
 	isWall(head) {
-		return this.walls.some(wall => wall.x === head.x && wall.y === head.y);
+		return this.walls.some(wall => {
+			return wall.x === head.x && wall.y === head.y
+		});
 	}
 
-	isSnake(head) {
-		return this.snake.some(snake => snake.x === head.x && snake.y === head.y);
+	isSnake(head, ignoreHead = false) {
+		let i = ignoreHead ? 1 : 0;
+		for (i; i < this.snake.length; i++) {
+			if (this.snake[i].x === head.x && this.snake[i].y === head.y) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	isFood(head) {
+		return this.foods.some(food => {
+			return food.x === head.x && food.y === head.y
+		});
+	}
+
+	generateFood() {
+		let coords;
+
+		do {
+			coords = new Coordinate(Math.floor(Math.random() * this.board.cellNumber), Math.floor(Math.random() * this.board.cellNumber));
+		} while (this.isWall(coords) || this.isSnake(coords) || this.isFood(coords));
+
+		this.foods.push(coords);
+	}
+
+	updateScore() {
+		document.getElementById('score-value').textContent = this.snake.length;
 	}
 
 }
@@ -139,67 +173,88 @@ export class Board {
 	context;
 	boardSize;
 	cellSize;
+	cellNumber;
 
 	constructor(context, boardSize, cellSize) {
 		this.context = context;
 		this.boardSize = boardSize;
 		this.cellSize = cellSize;
+		this.updateBoardSize();
 	}
 
-	drawBoard(walls, food) {
+	updateBoardSize() {
+		this.cellNumber = this.boardSize / this.cellSize;
+	}
 
-		for (let i = 0; i < this.boardSize / this.cellSize; i++) {
+	drawBoard(walls, foods) {
 
-			for (let j = 0; j < this.boardSize / this.cellSize; j++) {
+		this.updateBoardSize();
 
-				this.drawEmptyCell(i, j);
+		for (let i = 0; i < this.cellNumber; i++) {
+
+			for (let j = 0; j < this.cellNumber; j++) {
+
+				this.drawEmptyCell(new Coordinate(i, j));
 
 			}
 
 		}
 
 		for (let i = 0; i < walls.length; i++) {
-			this.drawWall(walls[i].x, walls[i].y);
+			this.drawWall(walls[i]);
 		}
 
-		this.drawFood(food.x, food.y);
+		for (const food of foods) {
+			this.drawFood(food);
+		}
+		
 
 	}
 
-	drawEmptyCell(x, y) {
-		this.context.fillStyle = 'rgba(93, 234, 142)';
-		this.context.fillRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
+	drawEmptyCell(coords) {
+		if (coords.x%2 === 0 && coords.y%2 === 0 || coords.x%2 === 1 && coords.y%2 === 1) {
+			this.context.fillStyle = 'rgb(170, 215, 81';
+		}else{
+			this.context.fillStyle = 'rgb(162, 209, 73)';
+		}
+		
+		this.context.fillRect(coords.x * this.cellSize, coords.y * this.cellSize, this.cellSize, this.cellSize);
 	}
 
-	drawWall(x, y) {
+	drawWall(coords) {
 		this.context.fillStyle = 'rgb(72, 72, 72)';
-		this.context.fillRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
+		this.context.fillRect(coords.x * this.cellSize, coords.y * this.cellSize, this.cellSize, this.cellSize);
 	}
 
-	drawFood(x, y) {
-		this.context.fillStyle = 'rgb(255, 215, 0)';
-		this.context.fillRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
+	drawFood(coords) {
+		this.context.beginPath();
+		this.context.fillStyle = 'rgb(207, 19, 12)';
+
+		const middle = new Coordinate(coords.x * this.cellSize + this.cellSize / 2, coords.y * this.cellSize + this.cellSize / 2);
+
+		this.context.arc(middle.x, middle.y, this.cellSize / 2, 0, 2 * Math.PI);
+		this.context.fill();
 	}
 
 	drawSnake(snake, direction) {
 
 		let head = snake[0];
-		this.drawSnakeHead(head.x, head.y, ['Right', 'Left'].includes(direction));
+		this.drawSnakeHead(head, ['Right', 'Left'].includes(direction));
 
 		for (let i = 1; i < snake.length; i++) {
 			let body = snake[i];
-			this.drawSnakeBody(body.x, body.y);
+			this.drawSnakeBody(body);
 		}
 
 	}
 
-	drawSnakeHead(x, y, vertical = true) {
-		this.context.fillStyle = 'rgba(0, 117, 40)';
-		this.context.fillRect(x* this.cellSize, y* this.cellSize, this.cellSize, this.cellSize);
+	drawSnakeHead(coords, vertical = true) {
+		this.context.fillStyle = 'rgb(94, 128, 0)';
+		this.context.fillRect(coords.x* this.cellSize, coords.y* this.cellSize, this.cellSize, this.cellSize);
 
 		this.context.fillStyle = 'rgb(169,0,12)';
-		let eyeX = x * this.cellSize + this.cellSize / 2;
-		let eyeY = y * this.cellSize + this.cellSize / 2;
+		let eyeX = coords.x * this.cellSize + this.cellSize / 2;
+		let eyeY = coords.y * this.cellSize + this.cellSize / 2;
 		let shiftX = (vertical ? 0 : 1) * this.cellSize / 4;
 		let shiftY = (vertical ? 1 : 0) * this.cellSize / 4;
 		this.context.beginPath();
@@ -208,9 +263,9 @@ export class Board {
 		this.context.fill();
 	}
 
-	drawSnakeBody(x, y) {
-		this.context.fillStyle = 'rgb(169,0,12)';
-		this.context.fillRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
+	drawSnakeBody(coords) {
+		this.context.fillStyle = 'rgb(103, 140, 1)';
+		this.context.fillRect(coords.x * this.cellSize, coords.y * this.cellSize, this.cellSize, this.cellSize);
 	}
 
 	isInsideBoard(head) {
@@ -218,5 +273,4 @@ export class Board {
 		return 0 <= head.x && head.x < cellCount
 			&& 0 <= head.y && head.y < cellCount;
 	}
-
 }
