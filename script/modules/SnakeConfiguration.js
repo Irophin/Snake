@@ -4,14 +4,16 @@ export class SnakeConfiguration {
 
 	title;
 	dimensions;
+	direction;
 	delay;
 	walls;
 	foods;
 	snake;
 
-	constructor(title, dimensions, delay, walls, foods, snake) {
+	constructor(title, dimensions, direction, delay, walls, foods, snake) {
 		this.title = title;
 		this.dimensions = dimensions;
+		this.direction = direction;
 		this.delay = delay;
 		this.walls = walls;
 		this.foods = foods;
@@ -22,7 +24,8 @@ export class SnakeConfiguration {
 
 		return new SnakeConfiguration(
 			json.title,
-			json.dimensions[0],
+			json.dimensions,
+			json.direction,
 			json.delay,
 			json.walls.map((position) => new Coordinate(position[0], position[1])),
 			json.food.map((position) => new Coordinate(position[0], position[1])),

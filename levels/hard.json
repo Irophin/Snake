@@ -1,7 +1,8 @@
 {
-	"title":"hard world",
+	"title":"Hard world",
 	"dimensions":[11,11],
 	"delay":200,
+	"direction":"Right",
 	"walls":[ 
 		[1,1],[2,1],[1,2],
 		[9,9],[8,9],[9,8],

@@ -1,30 +1,85 @@
 import {Coordinate} from "../utils/Coordinate.js";
-import {Board} from "../modules/Board.js";
+import {MapElements} from "../utils/MapElements.js";
 
 export class SnakeGame {
-
+	
+	configuration;
+	
 	snake;
-	walls;
-	foods;
 	delay;
 	direction;
-	binds;
-	board;
 	interval;
 
+	board;
+	map;
+	
+	popup;
+	binds;
 	turning = false;
 
-	constructor(snake, walls, foods, delay, direction, binds, board) {
-		this.snake = snake;
-		this.walls = walls;
-		this.foods = foods;
-		this.delay = delay;
-		this.direction = direction;
+	constructor(configuration, binds, board, popup) {
 		this.binds = binds;
 		this.board = board;
+		this.popup = popup;
+
+		this.configuration = configuration;
+		this.loadConfig(this.configuration);
+		this.initPopUp();
+
+		this.board.setMap(this.map);	
+		this.board.initBoard(500);
+		this.board.drawSnake(this.snake, this.direction);
+	}
+
+	loadConfig(configuration) {
+
+		this.snake = [...configuration.snake];
+		this.delay = configuration.delay;
+		this.direction = configuration.direction;
+		this.map = [];
+
+		for (let i = 0; i < configuration.dimensions[0]; i++) {
+			this.map.push([]);
+			for (let j = 0; j < configuration.dimensions[1]; j++) {
+				this.map[i].push(MapElements.EMPTY);
+			}
+		}
+
+		for (const { x, y } of configuration.walls) {
+			this.map[y][x] = MapElements.WALL;
+		}
+
+		for (const { x, y } of configuration.foods) {
+			this.map[y][x] = MapElements.FOOD;
+		}
+
+		for (const { x, y } of configuration.snake) {	
+			this.map[y][x] = MapElements.SNAKE;
+		}
+	}
+
+	initPopUp() {
+
+		this.popup.conteneur.classList.add('open');
+		this.popup.size.textContent = this.configuration.dimensions[0] + 'x' + this.configuration.dimensions[1];
+		this.popup.speed.textContent = this.delay + ' ms';
+		this.popup.title.textContent = this.configuration.title;
+		this.popup.play.textContent = 'PLAY';
+
+		this.popup.play.addEventListener('click', () => {
+			this.start();
+			this.popup.conteneur.classList.remove('open');
+		});
+	}
+
+	resize(){
+		this.board.updateBoardSize();
+		this.board.drawBoard();
+		this.board.drawSnake(this.snake, this.direction);
 	}
 
 	start() {
+		this.loadConfig(this.configuration);
 		this.board.drawBoard(this.walls, this.foods);
 		this.board.drawSnake(this.snake, this.direction);
 		this.updateScore();
@@ -51,68 +106,68 @@ export class SnakeGame {
 	moveSnake() {
 
 		let head =  { ...this.snake[0] };
-
 		switch (this.direction) {
 
 			case 'Right':
 				head.x += 1;
 				break;
-
 			case 'Left':
 				head.x -= 1;
 				break;
-
 			case 'Top':
 				head.y -= 1;
 				break;
-
 			case 'Bottom':
 				head.y += 1;
 				break;
+			default:
+				console.log('Error: direction not found');
 
 		}
 
-		this.snake.unshift(head);
-
-		if(this.isFood(head)){
-			this.foods.splice(this.foods.indexOf(head), 1);
-			this.generateFood();
-			this.board.drawBoard(this.walls, this.foods);
-			this.updateScore();
-		}else{
-			this.board.drawEmptyCell(this.snake.pop());
-		}
-
-		if (!this.board.isInsideBoard(head) || this.isWall(head) || this.isSnake(head,true)) {
+		if (!this.isInsideBoard(head) || this.isWall(head) || this.isSnake(head,true)) {
 			clearInterval(this.interval);
-			alert('Game over');
+			this.board.drawSnake(this.snake, this.direction);
+
+			this.popup.conteneur.classList.add('open');
+			this.popup.title.textContent = "GAME OVER";
+			this.popup.play.textContent = 'REPLAY';
+	
 			return;
 		}
-
+		
+		if(this.isFood(head)){
+			this.generateFood();
+			this.updateScore();
+		}else{
+			let tail = this.snake.pop();
+			this.board.drawEmptyCell(tail);
+			this.map[tail.y][tail.x] = MapElements.EMPTY;
+		}
+		
+		this.snake.unshift(head);
+		this.map[head.y][head.x] = MapElements.SNAKE;
+		
 		this.board.drawSnake(this.snake, this.direction);
 		this.turning = false;
 	}
 
-	isWall(head) {
-		return this.walls.some(wall => {
-			return wall.x === head.x && wall.y === head.y
-		});
+
+	isInsideBoard(coords) {
+		return coords.x >= 0 && coords.x < this.configuration.dimensions[0] 
+			&& coords.y >= 0 && coords.y < this.configuration.dimensions[1];
 	}
 
-	isSnake(head, ignoreHead = false) {
-		let i = ignoreHead ? 1 : 0;
-		for (i; i < this.snake.length; i++) {
-			if (this.snake[i].x === head.x && this.snake[i].y === head.y) {
-				return true;
-			}
-		}
-		return false;
+	isWall(coords) {
+		return this.map[coords.y][coords.x] === MapElements.WALL;
 	}
 
-	isFood(head) {
-		return this.foods.some(food => {
-			return food.x === head.x && food.y === head.y
-		});
+	isSnake(coords) {
+		return this.map[coords.y][coords.x] === MapElements.SNAKE;
+	}
+
+	isFood(coords) {
+		return this.map[coords.y][coords.x] === MapElements.FOOD;
 	}
 
 	generateFood() {
@@ -122,11 +177,12 @@ export class SnakeGame {
 			coords = new Coordinate(Math.floor(Math.random() * this.board.cellNumber), Math.floor(Math.random() * this.board.cellNumber));
 		} while (this.isWall(coords) || this.isSnake(coords) || this.isFood(coords));
 
-		this.foods.push(coords);
+		this.map[coords.y][coords.x] = MapElements.FOOD;
+		this.board.drawFood(coords);
 	}
 
 	updateScore() {
-		document.getElementById('score-value').textContent = this.snake.length;
+		this.popup.score.textContent = this.snake.length;
 	}
 
 }

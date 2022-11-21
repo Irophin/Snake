@@ -1,59 +1,78 @@
 import {Coordinate} from "../utils/Coordinate.js";
+import {MapElements} from "../utils/MapElements.js";
 
 export class Board {
 
 	context;
+	canvas;
+	map;
 	boardSize;
-	cellSize;
 	cellNumber;
 
-	constructor(context, boardSize, cellSize) {
-		this.context = context;
-		this.boardSize = boardSize;
-		this.cellSize = cellSize;
+	constructor(canvas) {
+		this.canvas = canvas;
+		this.context = canvas.getContext('2d');
+	}
+
+	setMap(map) {
+		this.map = map;
 		this.updateBoardSize();
 	}
 
 	updateBoardSize() {
-		this.cellNumber = this.boardSize / this.cellSize;
+		let boardSize = Math.min(window.innerHeight/2, window.innerWidth*0.9);
+
+		this.canvas.width = boardSize;
+		this.canvas.height = boardSize;
+
+		this.boardSize = Math.min(this.context.canvas.width, this.context.canvas.height) ;
+		this.cellNumber = this.map.length;
+
+		this.cellSize = Math.floor(this.boardSize / this.cellNumber);
 	}
 
 	initBoard(delay) {
 		let cells = [];
 		for (let i = 0; i < this.cellNumber; i++) {
 			for (let j = 0; j < this.cellNumber; j++) {
-				cells.push(new Coordinate(i, j));
+				cells.push([i,j,this.map[i][j]]);
 			}
 		}
 
 		while (cells.length>0) {
 			let randomcell = cells.splice(Math.floor(Math.random() * cells.length),1)[0];
 			setTimeout(() => {
-				this.drawEmptyCell(randomcell);	
+
+				let coords = new Coordinate(randomcell[1], randomcell[0]);
+
+				if (randomcell[2] === MapElements.WALL) {
+					this.drawWall(coords);
+				} else if (randomcell[2] === MapElements.FOOD) {
+					this.drawEmptyCell(coords);
+					this.drawFood(coords);
+				} else if (randomcell[2] === MapElements.EMPTY) {
+					this.drawEmptyCell(coords);
+				}
+
 			}, Math.floor(Math.random() * delay));
 		}
 	}	
 
-	drawBoard(walls, foods) {
-
-		this.updateBoardSize();
-
+	drawBoard() {
 		for (let i = 0; i < this.cellNumber; i++) {
-
 			for (let j = 0; j < this.cellNumber; j++) {
 
-				this.drawEmptyCell(new Coordinate(i, j));
+				let coords = new Coordinate(j, i);
 
+				if (this.map[i][j] === MapElements.WALL) {
+					this.drawWall(coords);
+				} else if (this.map[i][j] === MapElements.FOOD) {
+					this.drawEmptyCell(coords);
+					this.drawFood(coords);
+				}else{
+					this.drawEmptyCell(coords);
+				}
 			}
-
-		}
-
-		for (let i = 0; i < walls.length; i++) {
-			this.drawWall(walls[i]);
-		}
-
-		for (const food of foods) {
-			this.drawFood(food);
 		}
 	}
 
