@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr-FR">
+<head>
+	<meta charset="UTF-8">
+	<title>Snake game</title>
+	<link rel="stylesheet" href="style/style.css">
+	<script type="module" src="script/snake.js" defer></script>
+</head>
+<body>
+
+<header>
+	<h1>Snake game</h1>
+</header>
+
+<main>
+
+	<div class="popup-play open">
+		<div class="popup-content">
+			<h2>Title : <span class="title"></span></h2>
+			<p>Size : <span class="size"></span></p>
+			<p>Speed : <span class="speed"></span></p>
+		</div>
+		<button class="play">Play</button>
+	</div>
+
+	<canvas id="board">
+	</canvas>
+
+	<div class="score">
+		<p>Score : <span id="score-value">0</span></p>
+	</div>
+
+</main>
+
+<footer>
+	<p>Réalisé par Luka Maret et Lilian Baudry - G2S3</p>
+</footer>
+
+</body>
+</html>
