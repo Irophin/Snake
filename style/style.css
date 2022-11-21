@@ -6,6 +6,7 @@ body {
   align-content: center;
   text-align: center;
   font-family: helvetica, arial, sans-serif;
+  position: relative;
 }
 
 .score {
@@ -15,4 +16,21 @@ body {
 
 #score-value {
   color: #007528;
+}
+
+.popup-play {
+  display: none;
+  width: 20em;
+  height: 10em;
+  background: hsla(0, 0%, 100%, 0.8);
+  border-radius: 1em;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  backdrop-filter: blur(1px);
+}
+
+.popup-play.open {
+  display: block;
 }

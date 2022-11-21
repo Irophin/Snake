@@ -11,13 +11,15 @@ export class Coordinate {
 
 export class SnakeConfiguration {
 
+	title;
 	dimensions;
 	delay;
 	walls;
 	foods;
 	snake;
 
-	constructor(dimensions, delay, walls, foods, snake) {
+	constructor(title, dimensions, delay, walls, foods, snake) {
+		this.title = title;
 		this.dimensions = dimensions;
 		this.delay = delay;
 		this.walls = walls;
@@ -28,6 +30,7 @@ export class SnakeConfiguration {
 	static from(json) {
 
 		return new SnakeConfiguration(
+			json.title,
 			json.dimensions[0],
 			json.delay,
 			json.walls.map((position) => new Coordinate(position[0], position[1])),
@@ -185,6 +188,22 @@ export class Board {
 	updateBoardSize() {
 		this.cellNumber = this.boardSize / this.cellSize;
 	}
+
+	initBoard(delay) {
+		let cells = [];
+		for (let i = 0; i < this.cellNumber; i++) {
+			for (let j = 0; j < this.cellNumber; j++) {
+				cells.push(new Coordinate(i, j));
+			}
+		}
+
+		while (cells.length>0) {
+			let randomcell = cells.splice(Math.floor(Math.random() * cells.length),1)[0];
+			setTimeout(() => {
+				this.drawEmptyCell(randomcell);	
+			}, Math.floor(Math.random() * delay));
+		}
+	}	
 
 	drawBoard(walls, foods) {
 

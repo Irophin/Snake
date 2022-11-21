@@ -1,8 +1,8 @@
 import {SnakeConfiguration} from "./model.js";
 
-export function loadConfiguration(mode) {
+export async function loadConfiguration(mode) {
 
-	return fetch("http://depot.lukamaret.com/snake/" + mode + ".json")
+	return fetch("levels/" + mode + ".json")
 		.then(function (response) {
 			if (response.ok) {
 				return response.json();
