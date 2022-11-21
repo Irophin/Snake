@@ -1,11 +1,13 @@
-import {loadConfiguration} from "./configuration.js";
-import {Board, SnakeGame} from "./model.js";
+import {SnakeConfiguration} from "./modules/SnakeConfiguration.js";
+import {Board} from "./modules/Board.js";
+import {SnakeGame} from "./modules/SnakeGame.js";
 
 // -------------------------------
 //			Variables
 // -------------------------------
 
-let configuration = await loadConfiguration('hard');
+let configuration = await SnakeConfiguration.loadConfiguration("medium");
+
 let board = document.querySelector('#board');
 let binds = [
 	{
@@ -37,8 +39,6 @@ let popUpPlay = {
 	size: document.querySelector('.size'),
 	speed: document.querySelector('.speed'),
 }
-
-console.log(popUpPlay);
 
 // -------------------------------
 //			Main script
