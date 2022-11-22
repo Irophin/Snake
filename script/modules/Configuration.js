@@ -1,4 +1,4 @@
-import {SnakeConfiguration} from "./model.js";
+import {SnakeConfiguration} from "./SnakeGame.js";
 
 export async function loadConfiguration(mode) {
 
