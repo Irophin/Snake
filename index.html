@@ -5,7 +5,7 @@
 	<title>Snake game</title>
 	<link rel="stylesheet" href="style/style.css">
 	<link rel="shortcut icon" href="images/icon.png" type="image/x-icon">
-	<script type="module" src="script/Main.js" defer></script>
+	<script type="module" src="script/router.js" defer></script>
 </head>
 <body>
 
@@ -15,21 +15,33 @@
 
 <main>
 
-	<div class="popup-play open">
-		<div class="popup-content">
-			<h2 class="title"></h2>
-			<p>Size : <span class="size"></span></p>
-			<p>Speed : <span class="speed"></span></p>
+	<div id="container"></div>
+
+	<template id="game-template">
+		<div class="popup-play open">
+			<div class="popup-content">
+				<h2 class="title"></h2>
+				<p>Size : <span class="size"></span></p>
+				<p>Speed : <span class="speed"></span></p>
+			</div>
+			<button class="play">Play</button>
 		</div>
-		<button class="play">Play</button>
-	</div>
 
-	<canvas id="board">
-	</canvas>
+		<canvas id="board">
+		</canvas>
 
-	<div class="score">
-		<p>Score : <span class="score-value">0</span></p>
-	</div>
+		<div class="score">
+			<p>Score : <span class="score-value">0</span></p>
+		</div>
+	</template>
+
+	<template id="home-template">
+		<h2>Bienvenue sur le jeu du snake</h2>
+		<p>Le but du jeu est de manger le plus de pommes possible en évitant les murs et le corps du serpent.</p>
+		<p>Choisissez un mode de jeu :</p>
+		<a href="#snake/medium">Medium</a>
+		<a href="#snake/hard">Hard</a>
+	</template>
 
 </main>
 
