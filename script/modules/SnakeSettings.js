@@ -1,6 +1,6 @@
 import {Coordinate} from "../utils/Coordinate.js";
 
-export class SnakeConfiguration {
+export class SnakeSettings {
 
 	title;
 	dimensions;
@@ -22,7 +22,7 @@ export class SnakeConfiguration {
 
 	static from(json) {
 
-		return new SnakeConfiguration(
+		return new SnakeSettings(
 			json.title,
 			json.dimensions,
 			json.direction,
@@ -33,15 +33,15 @@ export class SnakeConfiguration {
 		);
 	}
 
-	static async loadConfiguration(mode) {
-		return fetch("levels/" + mode + ".json")
+	static async loadSettings(level) {
+		return fetch("levels/" + level)
 			.then(function (response) {
 				if (response.ok) {
 					return response.json();
 				}
 				throw new Error(response.statusText);
 			})
-			.then((configuration) => this.from(configuration))
+			.then((settings) => this.from(settings))
 			.catch((error) => console.log("There was a fetch problem: ", error.message));
 	}
 

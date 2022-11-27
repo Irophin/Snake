@@ -1,6 +1,6 @@
-import {SnakeConfiguration} from "./SnakeGame.js";
+import {SnakeSettings} from "./SnakeGame.js";
 
-export async function loadConfiguration(mode) {
+export async function loadSettings(mode) {
 
 	return fetch("levels/" + mode + ".json")
 		.then(function (response) {
@@ -9,6 +9,6 @@ export async function loadConfiguration(mode) {
 			}
 			throw new Error(response.statusText);
 		})
-		.then((configuration) => SnakeConfiguration.from(configuration))
+		.then((settings) => SnakeSettings.from(settings))
 		.catch((error) => console.log("There was a fetch problem: ", error.message));
 }

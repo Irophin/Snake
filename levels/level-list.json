@@ -1,0 +1,14 @@
+{
+	"levels" : [
+		{
+			"title": "Medium",
+			"href": "#level-1",
+			"json": "level-1.json"
+		},
+		{
+			"title": "Hard",
+			"href": "#level-2",
+			"json": "level-2.json"
+		}
+	]
+}
