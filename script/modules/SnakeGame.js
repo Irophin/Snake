@@ -1,9 +1,10 @@
 import {Coordinate} from "../utils/Coordinate.js";
 import {MapElements} from "../utils/MapElements.js";
+import {Board} from "./Board.js";
 
 export class SnakeGame {
 	
-	configuration;
+	settings;
 	
 	snake;
 	delay;
@@ -17,13 +18,15 @@ export class SnakeGame {
 	binds;
 	turning = false;
 
-	constructor(configuration, binds, board, popup) {
+	constructor(binds) {
 		this.binds = binds;
-		this.board = board;
-		this.popup = popup;
+	}
 
-		this.configuration = configuration;
-		this.loadConfig(this.configuration);
+	initGame(canvas, popUp){
+		this.board = new Board(canvas);
+		this.popup = popUp;
+
+		this.loadConfig(this.settings);
 		this.initPopUp();
 
 		this.board.setMap(this.map);	
@@ -31,40 +34,44 @@ export class SnakeGame {
 		this.board.drawSnake(this.snake, this.direction);
 	}
 
-	loadConfig(configuration) {
+	setSettings(settings){
+		this.settings = settings
+	}
 
-		this.snake = [...configuration.snake];
-		this.delay = configuration.delay;
-		this.direction = configuration.direction;
+	loadConfig(settings) {
+
+		this.snake = [...settings.snake];
+		this.delay = settings.delay;
+		this.direction = settings.direction;
 		this.map = [];
 
-		for (let i = 0; i < configuration.dimensions[0]; i++) {
+		for (let i = 0; i < settings.dimensions[0]; i++) {
 			this.map.push([]);
-			for (let j = 0; j < configuration.dimensions[1]; j++) {
+			for (let j = 0; j < settings.dimensions[1]; j++) {
 				this.map[i].push(MapElements.EMPTY);
 			}
 		}
 
-		for (const { x, y } of configuration.walls) {
+		for (const { x, y } of settings.walls) {
 			this.map[y][x] = MapElements.WALL;
 		}
 
-		for (const { x, y } of configuration.foods) {
+		for (const { x, y } of settings.foods) {
 			this.map[y][x] = MapElements.FOOD;
 		}
 
-		for (const { x, y } of configuration.snake) {	
+		for (const { x, y } of settings.snake) {	
 			this.map[y][x] = MapElements.SNAKE;
 		}
 	}
 
 	initPopUp() {
-
 		this.popup.conteneur.classList.add('open');
-		this.popup.size.textContent = this.configuration.dimensions[0] + 'x' + this.configuration.dimensions[1];
+		this.popup.size.textContent = this.settings.dimensions[0] + 'x' + this.settings.dimensions[1];
 		this.popup.speed.textContent = this.delay + ' ms';
-		this.popup.title.textContent = this.configuration.title;
+		this.popup.title.textContent = this.settings.title;
 		this.popup.play.textContent = 'PLAY';
+		this.popup.play.focus();
 
 		this.popup.play.addEventListener('click', () => {
 			this.start();
@@ -72,14 +79,20 @@ export class SnakeGame {
 		});
 	}
 
+	exit(){
+		clearInterval(this.interval);
+	}
+
 	resize(){
+		if(!this.board)
+			return
 		this.board.updateBoardSize();
 		this.board.drawBoard();
 		this.board.drawSnake(this.snake, this.direction);
 	}
 
 	start() {
-		this.loadConfig(this.configuration);
+		this.loadConfig(this.settings);
 		this.board.drawBoard(this.walls, this.foods);
 		this.board.drawSnake(this.snake, this.direction);
 		this.updateScore();
@@ -132,6 +145,8 @@ export class SnakeGame {
 			this.popup.conteneur.classList.add('open');
 			this.popup.title.textContent = "GAME OVER";
 			this.popup.play.textContent = 'REPLAY';
+
+			this.popup.play.focus();
 	
 			return;
 		}
@@ -152,10 +167,9 @@ export class SnakeGame {
 		this.turning = false;
 	}
 
-
 	isInsideBoard(coords) {
-		return coords.x >= 0 && coords.x < this.configuration.dimensions[0] 
-			&& coords.y >= 0 && coords.y < this.configuration.dimensions[1];
+		return coords.x >= 0 && coords.x < this.settings.dimensions[0] 
+			&& coords.y >= 0 && coords.y < this.settings.dimensions[1];
 	}
 
 	isWall(coords) {

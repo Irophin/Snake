@@ -18,13 +18,14 @@
 	<div id="container"></div>
 
 	<template id="game-template">
+
+		<a href="#" class="btn">Menu Principal</a>
+
 		<div class="popup-play open">
-			<div class="popup-content">
-				<h2 class="title"></h2>
-				<p>Size : <span class="size"></span></p>
-				<p>Speed : <span class="speed"></span></p>
-			</div>
-			<button class="play">Play</button>
+			<h2 class="title"></h2>
+			<p>Size : <span class="size"></span></p>
+			<p>Speed : <span class="speed"></span></p>
+			<button class="play btn">Play</button>
 		</div>
 
 		<canvas id="board">
@@ -39,8 +40,8 @@
 		<h2>Bienvenue sur le jeu du snake</h2>
 		<p>Le but du jeu est de manger le plus de pommes possible en évitant les murs et le corps du serpent.</p>
 		<p>Choisissez un mode de jeu :</p>
-		<a href="#snake/medium">Medium</a>
-		<a href="#snake/hard">Hard</a>
+		<ul id="levels">
+		</ul>
 	</template>
 
 </main>

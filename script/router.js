@@ -1,25 +1,30 @@
-import {mainGame} from "./Main.js";
+import {Snake} from "./Snake.js";
 
-function home() {
-	let container = document.getElementById("container");
-	let template = document.getElementById("home-template");
-	let clone = template.content.cloneNode(true);
-	container.innerHTML = "";
-	container.appendChild(clone);
-}
+async function routeur() {
 
-function routeur() {
+	snake.exitGame();
+	await snake.updatesLevels();
 
-	let url = window.location.hash.slice(1);
+	let url = window.location.hash;
 
-	if (url.startsWith("snake")) {
-		mainGame(url.slice(6));
-		return
+	if (url.match(/^#level-[0-9]*$/)) {
+
+		let valid = await snake.openGame(url)
+		
+		if (valid){
+			return
+		}else{
+			alert("Aucune carte trouvée");
+		}
 	}
 
-	home();
+	document.location.href = "#";
+
+	snake.openMenu()
 }
 
 window.addEventListener("hashchange", routeur);
+
+const snake = new Snake();
 
 routeur();
