@@ -2,6 +2,7 @@ import {Snake} from "./Snake.js";
 
 async function routeur() {
 
+	snake.exitGame();
 	await snake.updatesLevels();
 
 	let url = window.location.hash;

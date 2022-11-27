@@ -66,17 +66,21 @@ export class SnakeGame {
 	}
 
 	initPopUp() {
-
 		this.popup.conteneur.classList.add('open');
 		this.popup.size.textContent = this.settings.dimensions[0] + 'x' + this.settings.dimensions[1];
 		this.popup.speed.textContent = this.delay + ' ms';
 		this.popup.title.textContent = this.settings.title;
 		this.popup.play.textContent = 'PLAY';
+		this.popup.play.focus();
 
 		this.popup.play.addEventListener('click', () => {
 			this.start();
 			this.popup.conteneur.classList.remove('open');
 		});
+	}
+
+	exit(){
+		clearInterval(this.interval);
 	}
 
 	resize(){
@@ -141,6 +145,8 @@ export class SnakeGame {
 			this.popup.conteneur.classList.add('open');
 			this.popup.title.textContent = "GAME OVER";
 			this.popup.play.textContent = 'REPLAY';
+
+			this.popup.play.focus();
 	
 			return;
 		}

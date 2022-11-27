@@ -32,16 +32,13 @@ export class Snake{
 	]
 	
 	constructor(){
-
 		this.container = document.getElementById("container");
 		this.game = new SnakeGame(this.binds);	
-
-		window.addEventListener("keydown", (event) => this.game.keyPressed(event));
-		window.addEventListener("resize", () => this.game.resize());
 	}
 
 	openMenu(){
 		let homeTemplate = document.getElementById("home-template")
+
 		this.homeTemplate = homeTemplate.content.cloneNode(true);
 		this.container.replaceChildren(this.homeTemplate);
 
@@ -71,6 +68,10 @@ export class Snake{
 		if (found){
 			this.container.replaceChildren(this.gameTemplate);
 			this.game.initGame(canvas,this.popUp);
+
+			window.addEventListener("keydown", (event) => this.game.keyPressed(event));
+			window.addEventListener("resize", () => this.game.resize());
+
 			return true;
 		}
 		return false;
@@ -90,6 +91,10 @@ export class Snake{
 		return true;
 	}
 
+	exitGame(){
+		this.game.exit();
+	}
+
 	async updatesLevels() {
 		return await fetch("levels/level-list.json")
 			.then(
@@ -106,11 +111,11 @@ export class Snake{
 	createHTMLLevel(json){
 		let element = document.createElement("li");
 		let link = document.createElement("a")
-		link.textContent = json.title;
+		element.textContent = json.title;
 		link.href = json.href;
 	
-		element.appendChild(link);
-		return element;
+		link.appendChild(element);
+		return link;
 	}
 	
 }
