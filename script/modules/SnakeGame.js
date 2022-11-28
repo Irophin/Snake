@@ -20,12 +20,13 @@ export class SnakeGame {
     popup;
     binds;
     turning = false;
+    lastDirection;
 
     constructor(binds) {
         this.binds = binds;
     }
 
-    initGame(canvas, popUp) {
+    async initGame(canvas, popUp) {
         this.board = new Board(canvas);
         this.popup = popUp;
 
@@ -33,8 +34,8 @@ export class SnakeGame {
         this.initPopUp();
 
         this.board.setMap(this.map);
-        this.board.initBoard(500);
-        this.board.drawSnake(this.snake, this.direction);
+        await this.board.initBoard(500);
+        this.board.drawSnake(this.snake, this.direction, 1);
     }
 
     setSettings(settings) {
@@ -50,6 +51,7 @@ export class SnakeGame {
         this.lastUpdate = Date.now();
         this.startTime = Date.now();
         this.direction = settings.direction;
+        this.lastDirection = settings.direction;
         this.map = [];
 
         for (let i = 0; i < settings.dimensions[0]; i++) {
@@ -125,8 +127,20 @@ export class SnakeGame {
 
     moveSnake() {
 
-        if (Date.now() - this.lastUpdate < this.delay) {
+        let elapse = Date.now() - this.lastUpdate;
+
+        if (elapse < this.delay) {
             window.requestAnimationFrame(() => this.moveSnake());
+
+
+            if (!this.turning){
+                this.lastDirection = this.direction;
+                this.board.drawSnake(this.snake, this.direction,elapse/this.delay);
+            }
+            else{
+                this.board.drawSnake(this.snake, this.lastDirection,elapse/this.delay);
+            }
+ 
             return;
         }
 
@@ -152,7 +166,8 @@ export class SnakeGame {
 
         if (!this.isInsideBoard(head) || this.isWall(head) || this.isSnake(head, true)) {
             this.running = false;
-            this.board.drawSnake(this.snake, this.direction);
+            
+            // this.board.drawSnake(this.snake, this.direction,1);
 
             this.popup.conteneur.classList.add('open');
             this.popup.title.textContent = "GAME OVER";

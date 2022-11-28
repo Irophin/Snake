@@ -72,6 +72,8 @@ export class Board {
 							this.drawFood(coords);
 						} else if (randomcell[2] === MapElements.EMPTY) {
 							this.drawEmptyCell(coords);
+						} else if (randomcell[2] === MapElements.SNAKE) {
+							this.drawSnakeBody(coords);
 						}
 					}
 					resolve();
@@ -110,7 +112,6 @@ export class Board {
 	}
 
 	drawWall(coords) {
-		this.context.fillStyle = 'rgb(72, 72, 72)';
 		let img = document.createElement('img');
 		img.src = 'images/wall.png';
 		img.onload = () => {
@@ -129,16 +130,65 @@ export class Board {
 
 	}
 
-	drawSnake(snake, direction) {
+	getDirection(snake, indice){
 
-		let head = snake[0];
-		this.drawSnakeHead(head, ['Right', 'Left'].includes(direction));
+		let partDirection;
+		let snakePart = snake[indice];
 
-		for (let i = 1; i < snake.length; i++) {
-			let body = snake[i];
-			this.drawSnakeBody(body);
+		if (snake.length > 1) {
+			partDirection = new Coordinate(snake[indice - 1].x - snakePart.x , snake[indice - 1].y - snakePart.y);
 		}
 
+		switch (true){
+			case partDirection.x === 0 && partDirection.y === -1:
+				return 'Top';
+			case partDirection.x === 0 && partDirection.y === 1:
+				return 'Bottom';
+			case partDirection.x === 1 && partDirection.y === 0:
+				return 'Right';
+			case partDirection.x === -1 && partDirection.y === 0:
+				return 'Left';
+			default:
+				console.log('error direction');
+		}
+
+	}
+
+	drawSnake(snake, headDirection, ratio = 0) {
+		let head = snake[0];
+
+		if (headDirection === 'Right')
+			head = new Coordinate(head.x-(1-ratio), head.y);
+		else if (headDirection === 'Left')
+			head = new Coordinate(head.x+(1-ratio), head.y);
+		else if (headDirection === 'Top')
+			head = new Coordinate(head.x, head.y+(1-ratio));
+		else if (headDirection === 'Bottom')
+			head = new Coordinate(head.x, head.y-(1-ratio));
+
+		
+		for (let i = 1; i < snake.length-1; i++) {
+			this.drawSnakeBody(snake[i]);
+		}
+
+		let tail = snake.at(-1);
+		this.drawEmptyCell(tail);
+		let tailDirection = this.getDirection(snake, snake.length-1);
+
+		if (tailDirection === 'Right')
+			tail = new Coordinate(tail.x+(ratio), tail.y);
+
+		else if (tailDirection === 'Left')
+			tail = new Coordinate(tail.x-(ratio), tail.y);
+
+		else if (tailDirection === 'Top')
+			tail = new Coordinate(tail.x, tail.y-(ratio));
+
+		else if (tailDirection === 'Bottom')
+			tail = new Coordinate(tail.x, tail.y+(ratio));
+		
+		this.drawSnakeTail(tail);
+		this.drawSnakeHead(head, ['Right', 'Left'].includes(headDirection));
 	}
 
 	drawSnakeHead(coords, vertical = true) {
@@ -157,6 +207,11 @@ export class Board {
 	}
 
 	drawSnakeBody(coords) {
+		this.context.fillStyle = 'rgb(103, 140, 1)';
+		this.context.fillRect(coords.x * this.cellSize, coords.y * this.cellSize, this.cellSize, this.cellSize);
+	}
+
+	drawSnakeTail(coords) {
 		this.context.fillStyle = 'rgb(103, 140, 1)';
 		this.context.fillRect(coords.x * this.cellSize, coords.y * this.cellSize, this.cellSize, this.cellSize);
 	}
