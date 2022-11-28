@@ -97,15 +97,8 @@ export class Snake{
 
 	async updatesLevels() {
 		return await fetch("levels/level-list.json")
-			.then(
-				(reponse) => {
-					return reponse.json();
-				}
-			).then(
-				(json) => {
-					this.levels = json.levels;
-				}
-			)
+			.then((response) => response.json())
+			.then((json) => this.levels = json.levels)
 	}
 
 	createHTMLLevel(json){
