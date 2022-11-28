@@ -3,200 +3,215 @@ import {MapElements} from "../utils/MapElements.js";
 import {Board} from "./Board.js";
 
 export class SnakeGame {
-	
-	settings;
-	
-	snake;
-	delay;
-	direction;
-	interval;
 
-	board;
-	map;
-	
-	popup;
-	binds;
-	turning = false;
+    settings;
 
-	constructor(binds) {
-		this.binds = binds;
-	}
+    snake;
+    delay;
+    initialDelay;
+    direction;
+    running;
+    startTime;
+    lastUpdate;
 
-	initGame(canvas, popUp){
-		this.board = new Board(canvas);
-		this.popup = popUp;
+    board;
+    map;
 
-		this.loadConfig(this.settings);
-		this.initPopUp();
+    popup;
+    binds;
+    turning = false;
 
-		this.board.setMap(this.map);	
-		this.board.initBoard(500);
-		this.board.drawSnake(this.snake, this.direction);
-	}
+    constructor(binds) {
+        this.binds = binds;
+    }
 
-	setSettings(settings){
-		this.settings = settings
-	}
+    initGame(canvas, popUp) {
+        this.board = new Board(canvas);
+        this.popup = popUp;
 
-	loadConfig(settings) {
+        this.loadConfig(this.settings);
+        this.initPopUp();
 
-		this.snake = [...settings.snake];
-		this.delay = settings.delay;
-		this.direction = settings.direction;
-		this.map = [];
+        this.board.setMap(this.map);
+        this.board.initBoard(500);
+        this.board.drawSnake(this.snake, this.direction);
+    }
 
-		for (let i = 0; i < settings.dimensions[0]; i++) {
-			this.map.push([]);
-			for (let j = 0; j < settings.dimensions[1]; j++) {
-				this.map[i].push(MapElements.EMPTY);
-			}
-		}
+    setSettings(settings) {
+        this.settings = settings
+    }
 
-		for (const { x, y } of settings.walls) {
-			this.map[y][x] = MapElements.WALL;
-		}
+    loadConfig(settings) {
 
-		for (const { x, y } of settings.foods) {
-			this.map[y][x] = MapElements.FOOD;
-		}
+        this.snake = [...settings.snake];
+        this.delay = settings.delay;
+        this.initialDelay = settings.delay;
+        this.running = true;
+        this.lastUpdate = Date.now();
+        this.startTime = Date.now();
+        this.direction = settings.direction;
+        this.map = [];
 
-		for (const { x, y } of settings.snake) {	
-			this.map[y][x] = MapElements.SNAKE;
-		}
-	}
+        for (let i = 0; i < settings.dimensions[0]; i++) {
+            this.map.push([]);
+            for (let j = 0; j < settings.dimensions[1]; j++) {
+                this.map[i].push(MapElements.EMPTY);
+            }
+        }
 
-	initPopUp() {
-		this.popup.conteneur.classList.add('open');
-		this.popup.size.textContent = this.settings.dimensions[0] + 'x' + this.settings.dimensions[1];
-		this.popup.speed.textContent = this.delay + ' ms';
-		this.popup.title.textContent = this.settings.title;
-		this.popup.play.textContent = 'PLAY';
-		this.popup.play.focus();
+        for (const {x, y} of settings.walls) {
+            this.map[y][x] = MapElements.WALL;
+        }
 
-		this.popup.play.addEventListener('click', () => {
-			this.start();
-			this.popup.conteneur.classList.remove('open');
-		});
-	}
+        for (const {x, y} of settings.foods) {
+            this.map[y][x] = MapElements.FOOD;
+        }
 
-	exit(){
-		clearInterval(this.interval);
-	}
+        for (const {x, y} of settings.snake) {
+            this.map[y][x] = MapElements.SNAKE;
+        }
+    }
 
-	resize(){
-		if(!this.board)
-			return
-		this.board.updateBoardSize();
-		this.board.drawBoard();
-		this.board.drawSnake(this.snake, this.direction);
-	}
+    initPopUp() {
+        this.popup.conteneur.classList.add('open');
+        this.popup.size.textContent = this.settings.dimensions[0] + 'x' + this.settings.dimensions[1];
+        this.popup.speed.textContent = this.delay + ' ms';
+        this.popup.title.textContent = this.settings.title;
+        this.popup.play.textContent = 'PLAY';
+        this.popup.play.focus();
 
-	start() {
-		this.loadConfig(this.settings);
-		this.board.drawBoard(this.walls, this.foods);
-		this.board.drawSnake(this.snake, this.direction);
-		this.updateScore();
-		this.interval = setInterval(() => this.moveSnake(), this.delay)
-	}
+        this.popup.play.addEventListener('click', () => {
+            this.start();
+            this.popup.conteneur.classList.remove('open');
+        });
+    }
 
-	keyPressed(event) {
-		
-		if (this.turning){
-			return;
-		}
-		this.turning = true;
+    exit() {
+        this.running = false;
+    }
 
-		for (let i = 0; i < this.binds.length; i++) {
+    resize() {
+        if (!this.board)
+            return
+        this.board.updateBoardSize();
+        this.board.drawBoard();
+        this.board.drawSnake(this.snake, this.direction);
+    }
 
-			if (this.binds[i].keys.includes(event.key)) {
-				if(this.direction != this.binds[i].deadDirection){
-					this.direction = this.binds[i].direction;
-				}
-			}
-		}
-	}
+    start() {
+        this.loadConfig(this.settings);
+        this.board.drawBoard(this.walls, this.foods);
+        this.board.drawSnake(this.snake, this.direction);
+        this.updateScore();
+        window.requestAnimationFrame(() => this.moveSnake());
+    }
 
-	moveSnake() {
+    keyPressed(event) {
 
-		let head =  { ...this.snake[0] };
-		switch (this.direction) {
+        if (this.turning) {
+            return;
+        }
+        this.turning = true;
 
-			case 'Right':
-				head.x += 1;
-				break;
-			case 'Left':
-				head.x -= 1;
-				break;
-			case 'Top':
-				head.y -= 1;
-				break;
-			case 'Bottom':
-				head.y += 1;
-				break;
-			default:
-				console.log('Error: direction not found');
+        for (let i = 0; i < this.binds.length; i++) {
 
-		}
+            if (this.binds[i].keys.includes(event.key)) {
+                if (this.direction != this.binds[i].deadDirection) {
+                    this.direction = this.binds[i].direction;
+                }
+            }
+        }
+    }
 
-		if (!this.isInsideBoard(head) || this.isWall(head) || this.isSnake(head,true)) {
-			clearInterval(this.interval);
-			this.board.drawSnake(this.snake, this.direction);
+    moveSnake() {
 
-			this.popup.conteneur.classList.add('open');
-			this.popup.title.textContent = "GAME OVER";
-			this.popup.play.textContent = 'REPLAY';
+        if (Date.now() - this.lastUpdate < this.delay) {
+            window.requestAnimationFrame(() => this.moveSnake());
+            return;
+        }
 
-			this.popup.play.focus();
-	
-			return;
-		}
-		
-		if(this.isFood(head)){
-			this.generateFood();
-			this.updateScore();
-		}else{
-			let tail = this.snake.pop();
-			this.board.drawEmptyCell(tail);
-			this.map[tail.y][tail.x] = MapElements.EMPTY;
-		}
-		
-		this.snake.unshift(head);
-		this.map[head.y][head.x] = MapElements.SNAKE;
-		
-		this.board.drawSnake(this.snake, this.direction);
-		this.turning = false;
-	}
+        let head = {...this.snake[0]};
+        switch (this.direction) {
 
-	isInsideBoard(coords) {
-		return coords.x >= 0 && coords.x < this.settings.dimensions[1] 
-			&& coords.y >= 0 && coords.y < this.settings.dimensions[0];
-	}
+            case 'Right':
+                head.x += 1;
+                break;
+            case 'Left':
+                head.x -= 1;
+                break;
+            case 'Top':
+                head.y -= 1;
+                break;
+            case 'Bottom':
+                head.y += 1;
+                break;
+            default:
+                console.log('Error: direction not found');
 
-	isWall(coords) {
-		return this.map[coords.y][coords.x] === MapElements.WALL;
-	}
+        }
 
-	isSnake(coords) {
-		return this.map[coords.y][coords.x] === MapElements.SNAKE;
-	}
+        if (!this.isInsideBoard(head) || this.isWall(head) || this.isSnake(head, true)) {
+            this.running = false;
+            this.board.drawSnake(this.snake, this.direction);
 
-	isFood(coords) {
-		return this.map[coords.y][coords.x] === MapElements.FOOD;
-	}
+            this.popup.conteneur.classList.add('open');
+            this.popup.title.textContent = "GAME OVER";
+            this.popup.play.textContent = 'REPLAY';
 
-	generateFood() {
-		let coords;
+            this.popup.play.focus();
 
-		do {
-			coords = new Coordinate(Math.floor(Math.random() * this.board.widthNumber), Math.floor(Math.random() * this.board.heightNumber));
-		} while (this.isWall(coords) || this.isSnake(coords) || this.isFood(coords));
+            return;
+        }
 
-		this.map[coords.y][coords.x] = MapElements.FOOD;
-		this.board.drawFood(coords);
-	}
+        if (this.isFood(head)) {
+            this.generateFood();
+            this.updateScore();
+        } else {
+            let tail = this.snake.pop();
+            this.board.drawEmptyCell(tail);
+            this.map[tail.y][tail.x] = MapElements.EMPTY;
+        }
 
-	updateScore() {
-		this.popup.score.textContent = this.snake.length;
-	}
+        this.snake.unshift(head);
+        this.map[head.y][head.x] = MapElements.SNAKE;
+
+        this.board.drawSnake(this.snake, this.direction);
+        this.turning = false;
+        this.lastUpdate = Date.now();
+        this.delay = (this.initialDelay - (this.initialDelay / 100)) / (1 + Math.exp(0.03 * ((Date.now() - this.startTime) / 300 - 200))) + (this.initialDelay / 100);
+        window.requestAnimationFrame(() => this.moveSnake());
+    }
+
+    isInsideBoard(coords) {
+        return coords.x >= 0 && coords.x < this.settings.dimensions[0]
+            && coords.y >= 0 && coords.y < this.settings.dimensions[1];
+    }
+
+    isWall(coords) {
+        return this.map[coords.y][coords.x] === MapElements.WALL;
+    }
+
+    isSnake(coords) {
+        return this.map[coords.y][coords.x] === MapElements.SNAKE;
+    }
+
+    isFood(coords) {
+        return this.map[coords.y][coords.x] === MapElements.FOOD;
+    }
+
+    generateFood() {
+        let coords;
+
+        do {
+            coords = new Coordinate(Math.floor(Math.random() * this.board.cellNumber), Math.floor(Math.random() * this.board.cellNumber));
+        } while (this.isWall(coords) || this.isSnake(coords) || this.isFood(coords));
+
+        this.map[coords.y][coords.x] = MapElements.FOOD;
+        this.board.drawFood(coords);
+    }
+
+    updateScore() {
+        this.popup.score.textContent = this.snake.length;
+    }
 
 }

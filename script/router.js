@@ -2,25 +2,25 @@ import {Snake} from "./Snake.js";
 
 async function routeur() {
 
-	snake.exitGame();
-	await snake.updatesLevels();
+    snake.exitGame();
+    await snake.updatesLevels();
 
-	let url = window.location.hash;
+    let url = window.location.hash;
 
-	if (url.match(/^#level-[0-9]*$/)) {
+    if (url.match(/^#level-[0-9]*$/)) {
 
-		let valid = await snake.openGame(url)
-		
-		if (valid){
-			return
-		}else{
-			alert("Aucune carte trouvée");
-		}
-	}
+        let valid = await snake.openGame(url)
 
-	document.location.href = "#";
+        if (!valid) {
+            alert("Aucune carte trouvée");
+        }
 
-	snake.openMenu()
+        return;
+    }
+
+    document.location.href = "#";
+
+    snake.openMenu()
 }
 
 window.addEventListener("hashchange", routeur);
