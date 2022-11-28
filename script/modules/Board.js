@@ -27,15 +27,20 @@ export class Board {
 		let ratio = this.heightNumber/this.widthNumber;
 		let PageRatio = window.innerHeight/window.innerWidth
 
+		let width;
+		let height;
+
 		if (ratio < PageRatio) {
-			this.canvas.width = window.innerWidth*0.6;
-			this.canvas.height = this.canvas.width*ratio;	
+			width = window.innerWidth*0.9;
 		} else {
-			this.canvas.height = window.innerHeight*0.6;
-			this.canvas.width = this.canvas.height/ratio;
+			height = window.innerHeight*0.6;
+	 		width = height/ratio;
 		}
 
-		this.cellSize = Math.floor(this.canvas.width / this.widthNumber);
+		this.cellSize = Math.floor(width / this.widthNumber);
+
+		this.canvas.width = this.cellSize * this.widthNumber;
+		this.canvas.height = this.cellSize * this.heightNumber;
 	}
 
 	async initBoard(delay) {
@@ -46,23 +51,32 @@ export class Board {
 			}
 		}
 
-		while (cells.length>0) {
-			let randomcell = cells.splice(Math.floor(Math.random() * cells.length),1)[0];
+		let time = 10;
+		let display = cells.length/(delay/time);
 
-			let promise = new Promise((resolve, reject) => {
+		while (cells.length>0) {
+			
+			let promise = new Promise((resolve) => {
 				setTimeout(() => {
-					let coords = new Coordinate(randomcell[1], randomcell[0]);
-	
-					if (randomcell[2] === MapElements.WALL) {
-						this.drawWall(coords);
-					} else if (randomcell[2] === MapElements.FOOD) {
-						this.drawEmptyCell(coords);
-						this.drawFood(coords);
-					} else if (randomcell[2] === MapElements.EMPTY) {
-						this.drawEmptyCell(coords);
+					for (let i = 0; i < display; i++) {
+						if (cells.length===0)
+							break;
+
+						let randomcell = cells.splice(Math.floor(Math.random() * cells.length),1)[0];
+						
+						let coords = new Coordinate(randomcell[1], randomcell[0]);
+		
+						if (randomcell[2] === MapElements.WALL) {
+							this.drawWall(coords);
+						} else if (randomcell[2] === MapElements.FOOD) {
+							this.drawEmptyCell(coords);
+							this.drawFood(coords);
+						} else if (randomcell[2] === MapElements.EMPTY) {
+							this.drawEmptyCell(coords);
+						}
 					}
 					resolve();
-				}, 1);
+				}, time);
 			});
 
 			await promise;
