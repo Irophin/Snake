@@ -1,3 +1,8 @@
+:root{
+  --green : rgb(141, 182, 66);
+  --dark-green : rgb(41, 125, 41);
+}
+
 *{
   margin: 0;
 }
@@ -7,96 +12,225 @@ body {
   width: 100vw;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-evenly;
   align-content: center;
   text-align: center;
   font-family: helvetica, arial, sans-serif;
   position: relative;
   box-sizing: border-box;
-  padding: 2vh 0;
 }
 
-#container{
+
+header{
+  background-color: var(--dark-green);
+  z-index: 1;
+}
+
+header h1{
+  color: white;
+  letter-spacing: 3px;
+  font-size: 1.5em;
+  padding: 10px;
+}
+
+footer{
+  background-color: var(--dark-green);
+  padding: 1em;
+
+  color: white;
+}
+
+main{
+  flex-grow: 1;
   display: flex;
   align-items: center;
+  justify-content: center;
   flex-direction: column;
-  gap: 3em;
 }
 
-.score {
-  font-size: 2rem;
-  color: #333;
-}
-
-#score-value {
-  color: #007528;
-}
-
-.popup-play {
-  display: none;
-  width: min(20em, 90%);
-  height: 10em;
-  background: hsla(0, 0%, 100%, 0.8);
-  border-radius: 1em;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  backdrop-filter: blur(1px);
-}
-
-.popup-play.open {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-}
-
-.btn{
-  transition: all 300ms ease;
-  font-size: 20px;
-  border:1px solid black;
-  padding: 5px 20px;
-  border-radius: 20px;
-}
-
-.btn:hover{
-  background-color: rgb(241, 241, 241);
-}
-
-.play{
-  background-color: red;
-  color:white;
-  border-color: transparent;
-}
-
-.play:hover{
-  color:black;
+strong{
+  color: var(--green);
 }
 
 a{
   color: black;
-  flex-grow: 1;
   text-decoration: none;
 }
 
-ul{
+#home{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  width: min(80%,30em);
+  height: min(80%,40em);
+  border: 3px solid var(--green);
+  border-radius: 3em;
+
+  padding: 1em; 
+}
+
+#home hr{
+  width: 80%;
+  border: 1px solid var(--dark-green);
+}
+
+#home h2{
+  font-size: 2em;
+}
+
+#home p{
+  width: min(40ch, 90%);
+}
+
+#home ul{
   display: flex;
   flex-wrap: wrap;
   padding: 0;
   overflow: hidden;
-  border-radius: 20px;
+  border-radius: 50px;
   width: min(90%, 20em);
+  border: 2px solid var(--green);
 }
 
-li{
+#home a{
   flex-grow: 1;
-  transition: background-color 300ms ease;
-  list-style: none;
-  background-color: rgb(219, 219, 219);
-  padding: 5px 20px;
 }
 
-li:hover{
-  background-color: rgb(161, 161, 161) ;
+#home li{
+  transition: all 300ms ease;
+  list-style: none;
+  background-color: rgba(219, 219, 219, 0.231);
+  padding: 12px 10px;
+}
+
+#home li:hover{
+  background-color: var(--green);
+  color: white;
+  flex-grow: 2;
+}
+
+nav{
+  z-index: 0;
+  display: flex;
+  width: 100%;
+  justify-content: space-evenly;
+  align-items: center;
+  height: 3em;
+
+  background-color: var(--green);
+  animation: navOpen 1s ease-in-out;
+}
+
+nav.close{
+  animation: navClose 1s ease-in-out;
+}
+
+nav > *{
+  flex-grow: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+nav > *:hover{
+  transition: all 300ms ease;
+  background-color: var(--dark-green);
+  color: white;
+}
+
+nav p span{
+  font-weight: 700;
+}
+
+canvas{
+  border: 10px solid var(--green);
+  border-radius: 32px;
+  box-shadow: rgba(255, 255, 255, 0.1) 0px 1px 1px 0px inset,
+              rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, 
+              rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
+}
+
+#game{
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+.popup-play{
+  width: min(15em, 80%);
+  height: min(20em,90%);
+  display: None;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  background-color: hsla(0, 0%, 0%, 0.4);
+  backdrop-filter: blur(2px);
+  border-radius: 1em;
+
+  color: white;
+}
+.popup-play.open{
+  display: flex;
+}
+
+.popup-play hr{
+  width: 80%;
+  border: 1px solid white;
+}
+
+.popup-play p {
+  font-weight: 600;
+}
+
+.popup-play p span {
+  font-weight: 400;
+}
+
+
+.play{
+  transition: all 300ms ease;
+  width: 60%;
+  height: 10%;
+  border: 2px solid white;
+  border-radius: 1em;
+  letter-spacing: 3px;
+  font-weight: 600;
+  background-color: var(--green);
+  color:white;
+  border-color: transparent;
+}
+
+.play:focus,
+.play:hover{
+  background-color: var(--dark-green);
+  letter-spacing: 6px;
+  outline: none;
+}
+
+@keyframes navOpen {
+  0%{
+    transform: translateY(-100%);
+  }
+  100%{
+    transform: translateY(0);
+  }
+}
+
+@keyframes navClose {
+  0%{
+    transform: translateY(0);
+  }
+  100%{
+    transform: translateY(-100%);
+  }
 }

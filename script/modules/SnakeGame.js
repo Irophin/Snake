@@ -183,8 +183,8 @@ export class SnakeGame {
     }
 
     isInsideBoard(coords) {
-        return coords.x >= 0 && coords.x < this.settings.dimensions[0]
-            && coords.y >= 0 && coords.y < this.settings.dimensions[1];
+        return 0 <= coords.x && coords.x < this.settings.dimensions[1]
+            && 0 <= coords.y && coords.y < this.settings.dimensions[0];
     }
 
     isWall(coords) {
@@ -203,7 +203,7 @@ export class SnakeGame {
         let coords;
 
         do {
-            coords = new Coordinate(Math.floor(Math.random() * this.board.cellNumber), Math.floor(Math.random() * this.board.cellNumber));
+            coords = new Coordinate(Math.floor(Math.random() * this.board.widthNumber), Math.floor(Math.random() * this.board.heightNumber));
         } while (this.isWall(coords) || this.isSnake(coords) || this.isFood(coords));
 
         this.map[coords.y][coords.x] = MapElements.FOOD;
