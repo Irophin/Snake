@@ -6,8 +6,8 @@ export class Board {
 	context;
 	canvas;
 	map;
-	boardSize;
-	cellNumber;
+	heightNumber;
+	widthNumber;
 
 	constructor(canvas) {
 		this.canvas = canvas;
@@ -20,21 +20,28 @@ export class Board {
 	}
 
 	updateBoardSize() {
-		let boardSize = Math.min(window.innerHeight/2, window.innerWidth*0.9);
 
-		this.canvas.width = boardSize;
-		this.canvas.height = boardSize;
+		this.heightNumber = this.map.length;
+		this.widthNumber = this.map[0].length;
 
-		this.boardSize = Math.min(this.context.canvas.width, this.context.canvas.height) ;
-		this.cellNumber = this.map.length;
+		let ratio = this.heightNumber/this.widthNumber;
+		let PageRatio = window.innerHeight/window.innerWidth
 
-		this.cellSize = Math.floor(this.boardSize / this.cellNumber);
+		if (ratio < PageRatio) {
+			this.canvas.width = window.innerWidth*0.6;
+			this.canvas.height = this.canvas.width*ratio;	
+		} else {
+			this.canvas.height = window.innerHeight*0.6;
+			this.canvas.width = this.canvas.height/ratio;
+		}
+
+		this.cellSize = Math.floor(this.canvas.width / this.widthNumber);
 	}
 
 	initBoard(delay) {
 		let cells = [];
-		for (let i = 0; i < this.cellNumber; i++) {
-			for (let j = 0; j < this.cellNumber; j++) {
+		for (let i = 0; i < this.heightNumber; i++) {
+			for (let j = 0; j < this.widthNumber; j++) {
 				cells.push([i,j,this.map[i][j]]);
 			}
 		}
@@ -59,8 +66,8 @@ export class Board {
 	}	
 
 	drawBoard() {
-		for (let i = 0; i < this.cellNumber; i++) {
-			for (let j = 0; j < this.cellNumber; j++) {
+		for (let i = 0; i < this.heightNumber; i++) {
+			for (let j = 0; j < this.widthNumber; j++) {
 
 				let coords = new Coordinate(j, i);
 
