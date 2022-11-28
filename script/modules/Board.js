@@ -38,7 +38,7 @@ export class Board {
 		this.cellSize = Math.floor(this.canvas.width / this.widthNumber);
 	}
 
-	initBoard(delay) {
+	async initBoard(delay) {
 		let cells = [];
 		for (let i = 0; i < this.heightNumber; i++) {
 			for (let j = 0; j < this.widthNumber; j++) {
@@ -48,20 +48,24 @@ export class Board {
 
 		while (cells.length>0) {
 			let randomcell = cells.splice(Math.floor(Math.random() * cells.length),1)[0];
-			setTimeout(() => {
 
-				let coords = new Coordinate(randomcell[1], randomcell[0]);
+			let promise = new Promise((resolve, reject) => {
+				setTimeout(() => {
+					let coords = new Coordinate(randomcell[1], randomcell[0]);
+	
+					if (randomcell[2] === MapElements.WALL) {
+						this.drawWall(coords);
+					} else if (randomcell[2] === MapElements.FOOD) {
+						this.drawEmptyCell(coords);
+						this.drawFood(coords);
+					} else if (randomcell[2] === MapElements.EMPTY) {
+						this.drawEmptyCell(coords);
+					}
+					resolve();
+				}, 1);
+			});
 
-				if (randomcell[2] === MapElements.WALL) {
-					this.drawWall(coords);
-				} else if (randomcell[2] === MapElements.FOOD) {
-					this.drawEmptyCell(coords);
-					this.drawFood(coords);
-				} else if (randomcell[2] === MapElements.EMPTY) {
-					this.drawEmptyCell(coords);
-				}
-
-			}, Math.floor(Math.random() * delay));
+			await promise;
 		}
 	}	
 

@@ -32,11 +32,27 @@ export class Snake{
 	]
 	
 	constructor(){
-		this.container = document.getElementById("container");
+		this.container = document.querySelector("main");
 		this.game = new SnakeGame(this.binds);	
 	}
 
-	openMenu(){
+	async openMenu(){
+
+
+		let nav = document.querySelector("nav");
+
+		if (nav){
+			nav.classList.add("close");
+
+			let promise = new Promise((resolve, reject) => {
+				setTimeout(() => {
+					nav.remove();
+					resolve();
+				}, 1000);
+			});
+			await promise;
+		}
+		
 		let homeTemplate = document.getElementById("home-template")
 
 		this.homeTemplate = homeTemplate.content.cloneNode(true);

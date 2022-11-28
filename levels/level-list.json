@@ -1,19 +1,19 @@
 {
 	"levels" : [
 		{
-			"title": "Easy",
+			"title": "Simple",
 			"href": "#level-1",
-			"json": "level-1.json"
+			"json": "1.json"
 		},
 		{
 			"title": "Medium",
 			"href": "#level-2",
-			"json": "level-2.json"
+			"json": "2.json"
 		},
 		{
-			"title": "Hard",
+			"title": "Difficile",
 			"href": "#level-3",
-			"json": "level-3.json"
+			"json": "3.json"
 		}
 	]
 }
