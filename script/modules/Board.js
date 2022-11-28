@@ -69,7 +69,6 @@ export class Board {
 						if (randomcell[2] === MapElements.WALL) {
 							this.drawWall(coords);
 						} else if (randomcell[2] === MapElements.FOOD) {
-							this.drawEmptyCell(coords);
 							this.drawFood(coords);
 						} else if (randomcell[2] === MapElements.EMPTY) {
 							this.drawEmptyCell(coords);
@@ -92,7 +91,6 @@ export class Board {
 				if (this.map[i][j] === MapElements.WALL) {
 					this.drawWall(coords);
 				} else if (this.map[i][j] === MapElements.FOOD) {
-					this.drawEmptyCell(coords);
 					this.drawFood(coords);
 				}else{
 					this.drawEmptyCell(coords);
@@ -113,17 +111,22 @@ export class Board {
 
 	drawWall(coords) {
 		this.context.fillStyle = 'rgb(72, 72, 72)';
-		this.context.fillRect(coords.x * this.cellSize, coords.y * this.cellSize, this.cellSize, this.cellSize);
+		let img = document.createElement('img');
+		img.src = 'images/wall.png';
+		img.onload = () => {
+			this.context.drawImage(img, coords.x * this.cellSize, coords.y * this.cellSize, this.cellSize, this.cellSize);
+		}
 	}
 
 	drawFood(coords) {
-		this.context.beginPath();
-		this.context.fillStyle = 'rgb(207, 19, 12)';
+		this.drawEmptyCell(coords);
 
-		const middle = new Coordinate(coords.x * this.cellSize + this.cellSize / 2, coords.y * this.cellSize + this.cellSize / 2);
+		let img = document.createElement('img');
+		img.src = 'images/pomme.png';
+		img.onload = () => {
+			this.context.drawImage(img, coords.x * this.cellSize, coords.y * this.cellSize, this.cellSize, this.cellSize);
+		}
 
-		this.context.arc(middle.x, middle.y, this.cellSize / 2, 0, 2 * Math.PI);
-		this.context.fill();
 	}
 
 	drawSnake(snake, direction) {
