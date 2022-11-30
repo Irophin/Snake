@@ -3,9 +3,10 @@
   "dimensions": [4, 4],
   "delay": 500,
   "direction": "Right",
-  "walls":[],
+  "walls": [],
   "foods":[
-    [3, 0]
+    [3, 0],
+    [2, 1]
   ],
   "snake":[
     [2, 0], [1, 0], [0, 0]
