@@ -2,13 +2,13 @@ import {Coordinate} from "../utils/Coordinate.js";
 
 export class SnakeSettings {
 
-	title;
-	dimensions;
-	direction;
-	delay;
-	walls;
-	foods;
-	snake;
+	// title;
+	// dimensions;
+	// direction;
+	// delay;
+	// walls;
+	// foods;
+	// snake;
 
 	constructor(title, dimensions, direction, delay, walls, foods, snake) {
 		this.title = title;
@@ -28,7 +28,7 @@ export class SnakeSettings {
 			json.direction,
 			json.delay,
 			json.walls.map((position) => new Coordinate(position[0], position[1])),
-			json.food.map((position) => new Coordinate(position[0], position[1])),
+			json.foods.map((position) => new Coordinate(position[0], position[1])),
 			json.snake.map((position) => new Coordinate(position[0], position[1]))
 		);
 	}

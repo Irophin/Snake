@@ -3,11 +3,11 @@ import {MapElements} from "../utils/MapElements.js";
 
 export class Board {
 
-	context;
-	canvas;
-	map;
-	heightNumber;
-	widthNumber;
+	// context;
+	// canvas;
+	// map;
+	// heightNumber;
+	// widthNumber;
 
 	constructor(canvas) {
 		this.canvas = canvas;
@@ -31,7 +31,7 @@ export class Board {
 		this.widthNumber = this.map[0].length;
 
 		let ratio = this.heightNumber/this.widthNumber;
-		let PageRatio = window.innerHeight/window.innerWidth
+		let PageRatio = window.innerHeight/window.innerWidth;
 
 		let width;
 		let height;
@@ -53,42 +53,54 @@ export class Board {
 		let cells = [];
 		for (let i = 0; i < this.heightNumber; i++) {
 			for (let j = 0; j < this.widthNumber; j++) {
-				cells.push([i,j,this.map[i][j]]);
+				cells.push([i, j, this.map[i][j]]);
 			}
 		}
 
 		let time = 10;
-		let display = cells.length/(delay/time);
+		let display = cells.length / (delay / time);
 
-		while (cells.length>0) {
-			
-			let promise = new Promise((resolve) => {
-				setTimeout(() => {
-					for (let i = 0; i < display; i++) {
-						if (cells.length===0)
+		while (cells.length > 0) {
+			await new Promise(this.drawRandomCell(display, cells, time));
+		}
+	}
+
+	drawRandomCell(display, cells, time) {
+		return (resolve) => {
+			setTimeout(() => {
+				for (let i = 0; i < display; i++) {
+					if (cells.length === 0) {
+						break;
+					}
+
+					let randomCell = cells.splice(Math.floor(Math.random() * cells.length), 1)[0];
+
+					let coords = new Coordinate(randomCell[1], randomCell[0]);
+
+					switch (randomCell[2]) {
+						case MapElements.WALL:
+							this.drawWall(coords);
 							break;
 
-						let randomcell = cells.splice(Math.floor(Math.random() * cells.length),1)[0];
-						
-						let coords = new Coordinate(randomcell[1], randomcell[0]);
-		
-						if (randomcell[2] === MapElements.WALL) {
-							this.drawWall(coords);
-						} else if (randomcell[2] === MapElements.FOOD) {
+						case MapElements.FOOD:
 							this.drawFood(coords);
-						} else if (randomcell[2] === MapElements.EMPTY) {
-							this.drawEmptyCell(coords);
-						} else if (randomcell[2] === MapElements.SNAKE) {
-							this.drawSnakeBody(coords);
-						}
-					}
-					resolve();
-				}, time);
-			});
+							break;
 
-			await promise;
-		}
-	}	
+						case MapElements.SNAKE:
+							this.drawSnakeBody(coords);
+							break;
+
+						case MapElements.EMPTY:
+						default:
+							this.drawEmptyCell(coords);
+							break;
+					}
+
+				}
+				resolve();
+			}, time);
+		};
+	}
 
 	drawBoard() {
 		for (let i = 0; i < this.heightNumber; i++) {
@@ -96,15 +108,25 @@ export class Board {
 
 				let coords = new Coordinate(j, i);
 
-				if (this.map[i][j] === MapElements.WALL) {
-					this.drawWall(coords);
-				} else if (this.map[i][j] === MapElements.FOOD) {
-					this.drawFood(coords);
-				} else if (this.map[i][j] === MapElements.SNAKE) {
-					this.drawSnakeBody(coords);
-				} else {
-					this.drawEmptyCell(coords);
+				switch (this.map[i][j]) {
+					case MapElements.WALL:
+						this.drawWall(coords);
+						break;
+
+					case MapElements.FOOD:
+						this.drawFood(coords);
+						break;
+
+					case MapElements.SNAKE:
+						this.drawSnakeBody(coords);
+						break;
+
+					case MapElements.EMPTY:
+					default:
+						this.drawEmptyCell(coords);
+						break;
 				}
+
 			}
 		}
 	}
@@ -163,7 +185,7 @@ export class Board {
 
 	drawSnakeHead(position, direction, ratio) {
 
-		let coords = {...position}
+		let coords = {...position};
 		let shift = new Coordinate(0, 0);
 		let eye;
 
@@ -234,9 +256,4 @@ export class Board {
 		this.drawSnakeBody(tail);
 	}
 
-	isInsideBoard(head) {
-		let cellCount = this.boardSize / this.cellSize;
-		return 0 <= head.x && head.x < cellCount
-			&& 0 <= head.y && head.y < cellCount;
-	}
 }

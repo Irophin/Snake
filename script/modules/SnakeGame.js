@@ -1,31 +1,33 @@
-import {Coordinate} from "../utils/Coordinate.js";
 import {MapElements} from "../utils/MapElements.js";
 import {Board} from "./Board.js";
 
 export class SnakeGame {
 
-    settings;
-
-    snake;
-    delay;
-    initialDelay;
-    direction;
-    running;
-    startTime;
-    lastUpdate;
-    score;
-
-    board;
-    map;
-    level;
-
-    popup;
-    binds;
-    turning = false;
-    lastDirection;
+    // settings;
+    //
+    // snake;
+    // delay;
+    // initialDelay;
+    // direction;
+    // running;
+    // startTime;
+    // lastUpdate;
+    // score;
+    //
+    // board;
+    // map;
+    // level;
+    // walls;
+    // foods;
+    //
+    // popup;
+    // binds;
+    // turning;
+    // lastDirection;
 
     constructor(binds) {
         this.binds = binds;
+        this.turning = false;
     }
 
     async initGame(canvas, popUp) {
@@ -37,7 +39,7 @@ export class SnakeGame {
 
         this.board.setMap(this.map);
         await this.board.initBoard(500);
-        this.board.drawSnake(this.snake, this.direction, 1)
+        this.board.drawSnake(this.snake, this.direction, 1);
 
         this.score = 0;
         let highScore = localStorage.getItem(this.level + '.bestScore');
@@ -50,8 +52,9 @@ export class SnakeGame {
         document.querySelector('.speed-value').textContent = Math.round(this.delay) + ' ms';
     }
 
-    setSettings(settings) {
-        this.settings = settings
+    setSettings(settings, level) {
+        this.settings = settings;
+        this.level = level;
     }
 
     loadConfig(settings) {
@@ -64,6 +67,8 @@ export class SnakeGame {
         this.startTime = Date.now();
         this.direction = settings.direction;
         this.lastDirection = settings.direction;
+        this.walls = settings.walls;
+        this.foods = settings.foods;
         this.map = [];
 
         for (let i = 0; i < settings.dimensions[0]; i++) {
@@ -105,8 +110,9 @@ export class SnakeGame {
     }
 
     resize() {
-        if (!this.board)
+        if (!this.board) {
             return
+        }
         this.board.updateBoardSize();
         this.board.drawBoard();
         this.board.drawSnake(this.snake, this.direction);
@@ -132,7 +138,7 @@ export class SnakeGame {
         for (let i = 0; i < this.binds.length; i++) {
 
             if (this.binds[i].keys.includes(event.key)) {
-                if (this.direction != this.binds[i].deadDirection) {
+                if (this.direction !== this.binds[i].deadDirection) {
                     this.direction = this.binds[i].direction;
                 }
             }
@@ -231,8 +237,8 @@ export class SnakeGame {
     }
 
     isInsideBoard(coords) {
-        return 0 <= coords.x && coords.x < this.settings.dimensions[1]
-            && 0 <= coords.y && coords.y < this.settings.dimensions[0];
+        return 0 <= coords.x && coords.x < this.settings.dimensions[1] &&
+            0 <= coords.y && coords.y < this.settings.dimensions[0];
     }
 
     isWall(coords) {
@@ -272,7 +278,6 @@ export class SnakeGame {
 
             if (foods === 0){
                 this.board.drawFood(this.snake.at(-1));
-                this.victory = true;
 
                 setTimeout(() => {
                     this.running = false;
@@ -280,12 +285,11 @@ export class SnakeGame {
                     this.popup.title.textContent = "YOU WIN";
                     this.popup.play.textContent = 'REPLAY';
                     this.popup.play.focus();
-                },this.delay);
+                }, this.delay);
 
-                return;
             }
 
-        }else{
+        } else {
             this.map[coords.y][coords.x] = MapElements.FOOD;
             this.board.drawFood(coords);
         }

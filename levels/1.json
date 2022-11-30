@@ -1,11 +1,20 @@
 {
-	"title":"Easy World",
-	"dimensions":[20,20],
-	"delay":200,
-	"direction":"Right",
-	"walls":[ 
-		[5,5],[5,6],[5,7],[5,8]
-	],
-	"food":[[2,5]],
-	"snake":[[10,10],[9,10],[8,10]]
+  "title": "Easy World",
+  "dimensions": [20, 20],
+  "delay": 200,
+  "direction": "Right",
+  "walls": [
+    [5, 5],
+    [5, 6],
+    [5, 7],
+    [5, 8]
+  ],
+  "foods": [
+    [2, 5]
+  ],
+  "snake": [
+    [10, 10],
+    [9, 10],
+    [8, 10]
+  ]
 }

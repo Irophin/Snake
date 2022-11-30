@@ -9,7 +9,7 @@ async function routeur() {
 
     if (url.match(/^#level-[0-9]*$/)) {
 
-        let valid = await snake.openGame(url)
+        let valid = await snake.openGame(url);
 
         if (!valid) {
             alert("Aucune carte trouvée");
@@ -20,11 +20,11 @@ async function routeur() {
 
     document.location.href = "#";
 
-    snake.openMenu()
+    await snake.openMenu();
 }
 
 window.addEventListener("hashchange", routeur);
 
 const snake = new Snake();
 
-routeur();
+await routeur();
