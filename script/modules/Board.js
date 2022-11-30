@@ -130,11 +130,6 @@ export class Board {
 
 	getDirection(snake, indice){
 
-		if (indice >= snake.length){
-			console.log("indice too big in getDirection");
-			return null;
-		}
-
 		let partDirection;
 		let snakePart = snake[indice];
 
@@ -155,7 +150,7 @@ export class Board {
 
 	}
 
-	drawSnake(snake, headDirection, ratio = 0) {
+	drawSnake(snake, headDirection, ratio = 0) {		
 		let head = snake[0];
 
 		for (let i = 1; i < snake.length-1; i++) {
