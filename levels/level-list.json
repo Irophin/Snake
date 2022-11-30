@@ -1,19 +1,24 @@
 {
-	"levels" : [
-		{
-			"title": "Simple",
-			"href": "#level-1",
-			"json": "1.json"
-		},
-		{
-			"title": "Medium",
-			"href": "#level-2",
-			"json": "2.json"
-		},
-		{
-			"title": "Difficile",
-			"href": "#level-3",
-			"json": "3.json"
-		}
-	]
+  "levels" : [
+    {
+      "title": "Très simple",
+      "href": "#level-0",
+      "json": "0.json"
+    },
+    {
+      "title": "Simple",
+      "href": "#level-1",
+      "json": "1.json"
+    },
+    {
+      "title": "Medium",
+      "href": "#level-2",
+      "json": "2.json"
+    },
+    {
+      "title": "Difficile",
+      "href": "#level-3",
+      "json": "3.json"
+    }
+  ]
 }

@@ -5,7 +5,7 @@
 	<title>Snake game</title>
 	<link rel="stylesheet" href="style/style.css">
 	<link rel="shortcut icon" href="images/icon.png" type="image/x-icon">
-	<script type="module" src="script/router.js" defer></script>
+	<script type="module" src="script/router.js" async></script>
 </head>
 <body>
 
@@ -48,9 +48,7 @@
 			<button class="play btn">Play</button>
 		</div>
 
-		<canvas id="board">
-		</canvas>
-
+		<canvas id="board"></canvas>
 		
 	</div>
 </template>
@@ -63,8 +61,7 @@
 		<hr>
 
 		<h3>Choisissez un <strong>mode de jeu</strong> :</h3>
-		<ul id="levels">
-		</ul>
+		<ul id="levels"></ul>
 	</div>
 </template>
 

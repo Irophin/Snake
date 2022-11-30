@@ -1,74 +1,80 @@
 import {SnakeGame} from "./modules/SnakeGame.js";
 import {SnakeSettings} from "./modules/SnakeSettings.js";
 
-export class Snake{
+/**
+ * Facade for the game.
+ */
+export class Snake {
 
-	game;
-	container;
-	levels;
+	// game;
+	// container;
+	// levels;
+	// popUp;
 
-	popUp;
-	binds = [
-		{
-			'direction': 'Top',
-			'deadDirection': 'Bottom',
-			'keys': ['ArrowUp', 'z']
-		},
-		{
-			'direction': 'Bottom',
-			'deadDirection': 'Top',
-			'keys': ['ArrowDown', 's']
-		},
-		{
-			'direction': 'Left',
-			'deadDirection': 'Right',
-			'keys': ['ArrowLeft', 'q']
-		},
-		{
-			'direction': 'Right',
-			'deadDirection': 'Left',
-			'keys': ['ArrowRight', 'd']
-		}
-	]
-	
-	constructor(){
+	constructor() {
 		this.container = document.querySelector("main");
-		this.game = new SnakeGame(this.binds);	
+		this.game = new SnakeGame([
+			{
+				'direction': 'Top',
+				'deadDirection': 'Bottom',
+				'keys': ['ArrowUp', 'z']
+			},
+			{
+				'direction': 'Bottom',
+				'deadDirection': 'Top',
+				'keys': ['ArrowDown', 's']
+			},
+			{
+				'direction': 'Left',
+				'deadDirection': 'Right',
+				'keys': ['ArrowLeft', 'q']
+			},
+			{
+				'direction': 'Right',
+				'deadDirection': 'Left',
+				'keys': ['ArrowRight', 'd']
+			}
+		]);
 	}
 
-	async openMenu(){
-
+	/**
+	 * Open the menu with level choice
+	 */
+	async openMenu() {
 
 		let nav = document.querySelector("nav");
 
-		if (nav){
+		if (nav) {
 			nav.classList.add("close");
 
-			let promise = new Promise((resolve, reject) => {
+			await new Promise((resolve) => {
 				setTimeout(() => {
 					nav.remove();
 					resolve();
 				}, 1000);
 			});
-			await promise;
 		}
-		
-		let homeTemplate = document.getElementById("home-template")
+
+		let homeTemplate = document.getElementById("home-template");
 
 		this.homeTemplate = homeTemplate.content.cloneNode(true);
 		this.container.replaceChildren(this.homeTemplate);
 
 		let levelsConteneur = document.getElementById("levels");
-		let HTMLlevels = this.levels.map(level => this.createHTMLLevel(level));
-		levelsConteneur.replaceChildren(...HTMLlevels);
+		let HtmlLevels = this.levels.map(level => this.createHTMLLevel(level));
+		levelsConteneur.replaceChildren(...HtmlLevels);
 	}
 
-	async openGame(href){
+	/**
+	 * Open the menu with the chosen level
+	 *
+	 * @param url {string} - The level to load
+	 * @returns {Promise<boolean>}  - True if the level is loaded
+	 */
+	async openGame(url) {
 
 		let gameTemplate = document.getElementById("game-template");
 		this.gameTemplate = gameTemplate.content.cloneNode(true);
-
-		let canvas = this.gameTemplate.querySelector('#board');
 
 		this.popUp = {
 			conteneur: this.gameTemplate.querySelector('.popup-play'),
@@ -77,58 +83,74 @@ export class Snake{
 			size: this.gameTemplate.querySelector('.size'),
 			speed: this.gameTemplate.querySelector('.speed'),
 			score: this.gameTemplate.querySelector('.score-value'),
-		}
+		};
 
-		let found = await this.loadGame(href)
+		let canvas = this.gameTemplate.querySelector('#board');
+		let found = await this.loadLevel(url);
 
-		if (found){
+		if (found) {
 			this.container.replaceChildren(this.gameTemplate);
-			this.game.initGame(canvas,this.popUp);
+			await this.game.initGame(canvas, this.popUp);
 
 			window.addEventListener("keydown", (event) => this.game.keyPressed(event));
 			window.addEventListener("resize", () => this.game.resize());
-			
-			let mainMenu = document.querySelector(".mainMenu");
-			mainMenu.addEventListener("click", () => {
-				this.game.exit();
-			});
 
+			document.querySelector(".mainMenu").addEventListener("click", () => this.game.exit());
 			return true;
 		}
+
 		return false;
 	}
 
-	async loadGame(href){
+	/**
+	 * Load the level from the url
+	 *
+	 * @param url {string} - The level to load
+	 * @returns {Promise<boolean>} - True if the level is loaded
+	 */
+	async loadLevel(url) {
 
-		let level = this.levels.find((level) => level.href == href);
+		let level = this.levels.find((level) => level.href === url);
 
-		if (!level){
-			return false
+		if (level) {
+			let settings = await SnakeSettings.loadSettings(level.json);
+			this.game.setSettings(settings, level.json.split('.')[0]);
+			return true;
 		}
 
-		let settings = await SnakeSettings.loadSettings(level.json);
-		this.game.setSettings(settings);
-		
-		return true;
+		return false;
 	}
 
-	exitGame(){
+	/**
+	 * Stop the game
+	 */
+	exitGame() {
 		this.game.exit();
 	}
 
+	/**
+	 * Update the level list from the json file
+	 */
 	async updatesLevels() {
-		return await fetch("levels/level-list.json")
+		return fetch("levels/level-list.json")
 			.then((response) => response.json())
-			.then((json) => this.levels = json.levels)
+			.then((json) => this.levels = json.levels);
 	}
 
-	createHTMLLevel(json){
+	/**
+	 * Create the HTML link for a level
+	 *
+	 * @param json {$ObjMap} - The json of the level
+	 * @returns {HTMLAnchorElement} - The HTML link
+	 */
+	createHTMLLevel(json) {
 		let element = document.createElement("li");
-		let link = document.createElement("a")
 		element.textContent = json.title;
+
+		let link = document.createElement("a");
 		link.href = json.href;
-	
 		link.appendChild(element);
+
 		return link;
 	}
 	
