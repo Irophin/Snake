@@ -217,18 +217,49 @@ export class SnakeGame {
     }
 
     isFood(coords) {
-        return this.map[coords.y][coords.x] === MapElements.FOOD;
+        let shadowTail = this.snake.at(-1);
+        return this.map[coords.y][coords.x] === MapElements.FOOD &&
+                !(shadowTail.x === coords.x && shadowTail.y === coords.y);
     }
 
     generateFood() {
-        let coords;
 
-        do {
-            coords = new Coordinate(Math.floor(Math.random() * this.board.widthNumber), Math.floor(Math.random() * this.board.heightNumber));
-        } while (this.isWall(coords) || this.isSnake(coords) || this.isFood(coords));
+        let emptyCases = [];
+        let foods = 0;
+        for (let i = 0; i < this.settings.dimensions[0]; i++) {
+            for (let j = 0; j < this.settings.dimensions[1]; j++) {
+                if (this.map[i][j] === MapElements.EMPTY) {
+                    emptyCases.push({x: j, y: i});
+                }
+                if (this.map[i][j] === MapElements.FOOD) {
+                    foods++;
+                }
+            }
+        }
 
-        this.map[coords.y][coords.x] = MapElements.FOOD;
-        this.board.drawFood(coords);
+        let coords = emptyCases[Math.floor(Math.random() * emptyCases.length)];
+        if (!coords){
+            foods--;
+
+            if (foods === 0){
+                this.board.drawFood(this.snake.at(-1));
+                this.victory = true;
+
+                setTimeout(() => {
+                    this.running = false;
+                    this.popup.conteneur.classList.add('open');
+                    this.popup.title.textContent = "YOU WIN";
+                    this.popup.play.textContent = 'REPLAY';
+                    this.popup.play.focus();
+                },this.delay);
+
+                return;
+            }
+
+        }else{
+            this.map[coords.y][coords.x] = MapElements.FOOD;
+            this.board.drawFood(coords);
+        }
     }
 
     updateScore() {
