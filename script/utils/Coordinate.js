@@ -1,3 +1,6 @@
+/**
+ * Represents a coordinate in the game world.
+ */
 export class Coordinate {
 
 	// x;

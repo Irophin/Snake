@@ -1,6 +1,9 @@
 import {SnakeGame} from "./modules/SnakeGame.js";
 import {SnakeSettings} from "./modules/SnakeSettings.js";
 
+/**
+ * Facade for the game.
+ */
 export class Snake {
 
 	// game;
@@ -73,7 +76,6 @@ export class Snake {
 		let gameTemplate = document.getElementById("game-template");
 		this.gameTemplate = gameTemplate.content.cloneNode(true);
 
-
 		this.popUp = {
 			conteneur: this.gameTemplate.querySelector('.popup-play'),
 			title: this.gameTemplate.querySelector('.title'),
@@ -143,11 +145,12 @@ export class Snake {
 	 */
 	createHTMLLevel(json) {
 		let element = document.createElement("li");
-		let link = document.createElement("a");
 		element.textContent = json.title;
+
+		let link = document.createElement("a");
 		link.href = json.href;
-	
 		link.appendChild(element);
+
 		return link;
 	}
 	

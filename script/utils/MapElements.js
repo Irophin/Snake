@@ -1,3 +1,6 @@
+/**
+ * Enumerates all map elements on the map.
+ */
 export class MapElements {
 
 	static EMPTY = 0;

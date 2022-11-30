@@ -1,5 +1,8 @@
 import {Coordinate} from "../utils/Coordinate.js";
 
+/**
+ * Represents the settings of the snake game.
+ */
 export class SnakeSettings {
 
 	// title;
@@ -20,6 +23,12 @@ export class SnakeSettings {
 		this.snake = snake;
 	}
 
+	/**
+	 * Loads the settings from a JSON object.
+	 *
+	 * @param json the JSON object
+	 * @returns {SnakeSettings} the settings
+	 */
 	static from(json) {
 
 		return new SnakeSettings(
@@ -33,6 +42,12 @@ export class SnakeSettings {
 		);
 	}
 
+	/**
+	 * Fetches the settings from the server with given level.
+	 *
+	 * @param level the level number
+	 * @returns {Promise<SnakeSettings | void>} the settings
+	 */
 	static async loadSettings(level) {
 		return fetch("levels/" + level)
 			.then(function (response) {
