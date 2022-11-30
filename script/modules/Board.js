@@ -12,6 +12,12 @@ export class Board {
 	constructor(canvas) {
 		this.canvas = canvas;
 		this.context = canvas.getContext('2d');
+
+		this.apple = document.createElement('img');
+		this.apple.src = 'images/pomme.png';
+
+		this.wall = document.createElement('img');
+		this.wall.src = 'images/wall.png';
 	}
 
 	setMap(map) {
@@ -94,7 +100,9 @@ export class Board {
 					this.drawWall(coords);
 				} else if (this.map[i][j] === MapElements.FOOD) {
 					this.drawFood(coords);
-				}else{
+				} else if (this.map[i][j] === MapElements.SNAKE) {
+					this.drawSnakeBody(coords);
+				} else {
 					this.drawEmptyCell(coords);
 				}
 			}
@@ -112,32 +120,25 @@ export class Board {
 	}
 
 	drawWall(coords) {
-		let img = document.createElement('img');
-		img.src = 'images/wall.png';
-		img.onload = () => {
-			this.context.drawImage(img, coords.x * this.cellSize, coords.y * this.cellSize, this.cellSize, this.cellSize);
-		}
+		this.context.drawImage(this.wall, coords.x * this.cellSize, coords.y * this.cellSize, this.cellSize, this.cellSize);
 	}
 
 	drawFood(coords) {
 		this.drawEmptyCell(coords);
-
-		let img = document.createElement('img');
-		img.src = 'images/pomme.png';
-		img.onload = () => {
-			this.context.drawImage(img, coords.x * this.cellSize, coords.y * this.cellSize, this.cellSize, this.cellSize);
-		}
-
+		this.context.drawImage(this.apple, coords.x * this.cellSize, coords.y * this.cellSize, this.cellSize, this.cellSize);
 	}
 
 	getDirection(snake, indice){
 
+		if (indice >= snake.length){
+			console.log("indice too big in getDirection");
+			return null;
+		}
+
 		let partDirection;
 		let snakePart = snake[indice];
 
-		if (snake.length > 1) {
-			partDirection = new Coordinate(snake[indice - 1].x - snakePart.x , snake[indice - 1].y - snakePart.y);
-		}
+		partDirection = new Coordinate(snake[indice - 1].x - snakePart.x , snake[indice - 1].y - snakePart.y);
 
 		switch (true){
 			case partDirection.x === 0 && partDirection.y === -1:
@@ -149,7 +150,7 @@ export class Board {
 			case partDirection.x === -1 && partDirection.y === 0:
 				return 'Left';
 			default:
-				console.log('error direction');
+				console.log('error switch getDirection');
 		}
 
 	}
@@ -157,52 +158,52 @@ export class Board {
 	drawSnake(snake, headDirection, ratio = 0) {
 		let head = snake[0];
 
-		if (headDirection === 'Right')
-			head = new Coordinate(head.x-(1-ratio), head.y);
-		else if (headDirection === 'Left')
-			head = new Coordinate(head.x+(1-ratio), head.y);
-		else if (headDirection === 'Top')
-			head = new Coordinate(head.x, head.y+(1-ratio));
-		else if (headDirection === 'Bottom')
-			head = new Coordinate(head.x, head.y-(1-ratio));
-
-		
 		for (let i = 1; i < snake.length-1; i++) {
 			this.drawSnakeBody(snake[i]);
 		}
 
-		let tail = snake.at(-1);
-		this.drawEmptyCell(tail);
-		let tailDirection = this.getDirection(snake, snake.length-1);
-
-		if (tailDirection === 'Right')
-			tail = new Coordinate(tail.x+(ratio), tail.y);
-
-		else if (tailDirection === 'Left')
-			tail = new Coordinate(tail.x-(ratio), tail.y);
-
-		else if (tailDirection === 'Top')
-			tail = new Coordinate(tail.x, tail.y-(ratio));
-
-		else if (tailDirection === 'Bottom')
-			tail = new Coordinate(tail.x, tail.y+(ratio));
-		
-		this.drawSnakeTail(tail);
-		this.drawSnakeHead(head, ['Right', 'Left'].includes(headDirection));
+		this.drawSnakeTail(snake, ratio);
+		this.drawSnakeHead(head, headDirection, ratio);
 	}
 
-	drawSnakeHead(coords, vertical = true) {
+	drawSnakeHead(position, direction, ratio) {
+
+		let coords = {...position}
+		let shift = new Coordinate(0, 0);
+		let eye;
+
+		switch (direction) {
+			case 'Right':
+				shift.y = this.cellSize / 4.5;
+				coords.x -= (1-ratio);
+				break;
+			case 'Left':
+				shift.y = this.cellSize / 4.5;
+				coords.x += (1-ratio);
+				break;
+			case 'Top':
+				shift.x = this.cellSize / 4.5;
+				coords.y += (1-ratio);
+				break;
+			case 'Bottom':
+				shift.x = this.cellSize / 4.5;
+				coords.y -= (1-ratio);
+				break;
+			default:
+				console.log('error direction Head');
+		}
+
+		eye = new Coordinate( coords.x * this.cellSize + this.cellSize / 2,
+			  				  coords.y * this.cellSize + this.cellSize / 2);
+
 		this.context.fillStyle = 'rgb(94, 128, 0)';
 		this.context.fillRect(coords.x* this.cellSize, coords.y* this.cellSize, this.cellSize, this.cellSize);
 
-		this.context.fillStyle = 'rgb(169,0,12)';
-		let eyeX = coords.x * this.cellSize + this.cellSize / 2;
-		let eyeY = coords.y * this.cellSize + this.cellSize / 2;
-		let shiftX = (vertical ? 0 : 1) * this.cellSize / 4;
-		let shiftY = (vertical ? 1 : 0) * this.cellSize / 4;
+		this.context.fillStyle = 'rgb(0,100,0)';
 		this.context.beginPath();
-		this.context.arc(eyeX - shiftX, eyeY - shiftY, this.cellSize / 7, 0, Math.PI * 2, true);
-		this.context.arc(eyeX + shiftX, eyeY + shiftY, this.cellSize / 7, 0, Math.PI * 2, true);
+		this.context.arc(eye.x - shift.x, eye.y - shift.y, this.cellSize / 7.8, 0, Math.PI * 2, true);
+		this.context.arc(eye.x + shift.x, eye.y + shift.y, this.cellSize / 7.8, 0, Math.PI * 2, true);
+
 		this.context.fill();
 	}
 
@@ -211,9 +212,31 @@ export class Board {
 		this.context.fillRect(coords.x * this.cellSize, coords.y * this.cellSize, this.cellSize, this.cellSize);
 	}
 
-	drawSnakeTail(coords) {
-		this.context.fillStyle = 'rgb(103, 140, 1)';
-		this.context.fillRect(coords.x * this.cellSize, coords.y * this.cellSize, this.cellSize, this.cellSize);
+	drawSnakeTail(snake, ratio) {
+
+		let tail = {...snake.at(-1)};
+		let direction = this.getDirection(snake, snake.length-1);
+
+		this.drawEmptyCell(tail);
+
+		switch (direction) {
+			case 'Right':
+				tail.x += ratio;
+				break;
+			case 'Left':
+				tail.x -= ratio;
+				break;
+			case 'Top':
+				tail.y -= ratio;
+				break;
+			case 'Bottom':
+				tail.y += ratio;
+				break;
+			default:
+				console.log('error direction Tail');
+		}
+
+		this.drawSnakeBody(tail);
 	}
 
 	isInsideBoard(head) {

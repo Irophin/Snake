@@ -102,6 +102,7 @@ export class SnakeGame {
 
     start() {
         this.loadConfig(this.settings);
+        this.board.setMap(this.map);
         this.board.drawBoard(this.walls, this.foods);
         this.board.drawSnake(this.snake, this.direction);
         this.updateScore();
@@ -126,6 +127,9 @@ export class SnakeGame {
     }
 
     moveSnake() {
+
+        if (!this.running)
+            return;
 
         let elapse = Date.now() - this.lastUpdate;
 
@@ -164,10 +168,10 @@ export class SnakeGame {
 
         }
 
-        if (!this.isInsideBoard(head) || this.isWall(head) || this.isSnake(head, true)) {
+        if (!this.isInsideBoard(head) || this.isWall(head) || this.isSnake(head)) {
             this.running = false;
             
-            // this.board.drawSnake(this.snake, this.direction,1);
+            this.board.drawSnake(this.snake, this.direction,1);
 
             this.popup.conteneur.classList.add('open');
             this.popup.title.textContent = "GAME OVER";
@@ -207,7 +211,9 @@ export class SnakeGame {
     }
 
     isSnake(coords) {
-        return this.map[coords.y][coords.x] === MapElements.SNAKE;
+        let shadowTail = this.snake.at(-1);
+        return this.map[coords.y][coords.x] === MapElements.SNAKE && 
+               !(shadowTail.x === coords.x && shadowTail.y === coords.y);
     }
 
     isFood(coords) {
