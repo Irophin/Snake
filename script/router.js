@@ -23,8 +23,6 @@ async function routeur() {
     await snake.openMenu();
 }
 
-window.addEventListener("hashchange", routeur);
-
 const snake = new Snake();
-
+window.addEventListener("hashchange", routeur);
 await routeur();

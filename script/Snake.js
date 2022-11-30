@@ -6,7 +6,6 @@ export class Snake {
 	// game;
 	// container;
 	// levels;
-	//
 	// popUp;
 
 	constructor() {
@@ -35,20 +34,22 @@ export class Snake {
 		]);
 	}
 
-	async openMenu(){
+	/**
+	 * Open the menu with level choice
+	 */
+	async openMenu() {
 
 		let nav = document.querySelector("nav");
 
-		if (nav){
+		if (nav) {
 			nav.classList.add("close");
 
-			let promise = new Promise((resolve,) => {
+			await new Promise((resolve) => {
 				setTimeout(() => {
 					nav.remove();
 					resolve();
 				}, 1000);
 			});
-			await promise;
 		}
 
 		let homeTemplate = document.getElementById("home-template");
@@ -61,12 +62,17 @@ export class Snake {
 		levelsConteneur.replaceChildren(...HtmlLevels);
 	}
 
-	async openGame(href){
+	/**
+	 * Open the menu with the chosen level
+	 *
+	 * @param url {string} - The level to load
+	 * @returns {Promise<boolean>}  - True if the level is loaded
+	 */
+	async openGame(url) {
 
 		let gameTemplate = document.getElementById("game-template");
 		this.gameTemplate = gameTemplate.content.cloneNode(true);
 
-		let canvas = this.gameTemplate.querySelector('#board');
 
 		this.popUp = {
 			conteneur: this.gameTemplate.querySelector('.popup-play'),
@@ -77,50 +83,65 @@ export class Snake {
 			score: this.gameTemplate.querySelector('.score-value'),
 		};
 
-		let found = await this.loadGame(href);
+		let canvas = this.gameTemplate.querySelector('#board');
+		let found = await this.loadLevel(url);
 
-		if (found){
+		if (found) {
 			this.container.replaceChildren(this.gameTemplate);
 			await this.game.initGame(canvas, this.popUp);
 
 			window.addEventListener("keydown", (event) => this.game.keyPressed(event));
 			window.addEventListener("resize", () => this.game.resize());
-			
-			let mainMenu = document.querySelector(".mainMenu");
-			mainMenu.addEventListener("click", () => {
-				this.game.exit();
-			});
 
+			document.querySelector(".mainMenu").addEventListener("click", () => this.game.exit());
 			return true;
 		}
+
 		return false;
 	}
 
-	async loadGame(href){
+	/**
+	 * Load the level from the url
+	 *
+	 * @param url {string} - The level to load
+	 * @returns {Promise<boolean>} - True if the level is loaded
+	 */
+	async loadLevel(url) {
 
-		let level = this.levels.find((level) => level.href === href);
+		let level = this.levels.find((level) => level.href === url);
 
-		if (!level){
-			return false;
+		if (level) {
+			let settings = await SnakeSettings.loadSettings(level.json);
+			this.game.setSettings(settings, level.json.split('.')[0]);
+			return true;
 		}
 
-		let settings = await SnakeSettings.loadSettings(level.json);
-		this.game.setSettings(settings, level.json.split('.')[0]);
-
-		return true;
+		return false;
 	}
 
-	exitGame(){
+	/**
+	 * Stop the game
+	 */
+	exitGame() {
 		this.game.exit();
 	}
 
+	/**
+	 * Update the level list from the json file
+	 */
 	async updatesLevels() {
-		return await fetch("levels/level-list.json")
+		return fetch("levels/level-list.json")
 			.then((response) => response.json())
 			.then((json) => this.levels = json.levels);
 	}
 
-	createHTMLLevel(json){
+	/**
+	 * Create the HTML link for a level
+	 *
+	 * @param json {$ObjMap} - The json of the level
+	 * @returns {HTMLAnchorElement} - The HTML link
+	 */
+	createHTMLLevel(json) {
 		let element = document.createElement("li");
 		let link = document.createElement("a");
 		element.textContent = json.title;
