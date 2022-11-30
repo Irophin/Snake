@@ -1,0 +1,21 @@
+stages:
+  - deploy
+
+run_deploy_prod:
+  stage: deploy
+  image: debian:stable-slim
+  environment:
+    name: production
+    url: https://snake.lukamaret.com
+  before_script:
+    - apt update && apt install -yqq curl
+  #    - apt update && apt install -yqq openssh-client
+  #    - chmod 400 $SSH_KEY
+  script:
+    - echo "Deploying to production"
+  #    - ssh -o StrictHostKeyChecking=no -p 55 -i $SSH_KEY snake@lukamaret.com "
+  #        cd /var/www/snake.lukamaret.com &&
+  #        git checkout main &&
+  #        git pull"
+  only:
+    - main

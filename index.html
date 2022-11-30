@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr-FR">
+<head>
+	<meta charset="UTF-8">
+	<title>Snake game</title>
+	<link rel="stylesheet" href="style/style.css">
+	<link rel="shortcut icon" href="images/icon.png" type="image/x-icon">
+	<script type="module" src="script/router.js" async></script>
+</head>
+<body>
+
+<header>
+	<h1>Snake game</h1>
+</header>
+
+<template id="game-template">
+	<nav>
+		<a href="#" class="mainMenu">Menu Principal</a>
+		
+		<div class="level">
+			<p>Niveau : <span class="level-value">1</span></p>
+		</div>
+		
+		<div class="score">
+			<p>Score : <span class="score-value">0</span></p>
+		</div>
+
+		<div class="highscore">
+			<p>Meilleur score : <span class="highscore-value">0</span></p>
+		</div>
+		
+		<div class="curent-speed">
+			<p>Vitesse : <span class="speed-value">0ms</span></p>
+		</div>
+
+		<div class="time">
+			<p>Temps : <span class="time-value">00:00</span></p>
+		</div>
+	</nav>
+
+	<div id="game">
+
+		<div class="popup-play open">
+			<h2 class="title"></h2>
+			<hr>
+			<p>Size : <span class="size"></span></p>
+			<p>Speed : <span class="speed"></span></p>
+			<button class="play btn">Play</button>
+		</div>
+
+		<canvas id="board"></canvas>
+		
+	</div>
+</template>
+
+<template id="home-template">
+	<div id="home">
+		<h2>Bienvenue sur le jeu du snake</h2>
+		<p>Le but du jeu est de manger <strong>le plus de pommes</strong> possible en évitant les <strong>murs</strong> et le <strong>corps</strong> du serpent.</p>
+
+		<hr>
+
+		<h3>Choisissez un <strong>mode de jeu</strong> :</h3>
+		<ul id="levels"></ul>
+	</div>
+</template>
+
+<main>
+
+</main>
+
+<footer>
+	<p>Réalisé par Luka Maret et Lilian Baudry - G2S3</p>
+</footer>
+
+</body>
+</html>
