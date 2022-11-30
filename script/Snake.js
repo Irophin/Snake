@@ -87,6 +87,11 @@ export class Snake{
 
 			window.addEventListener("keydown", (event) => this.game.keyPressed(event));
 			window.addEventListener("resize", () => this.game.resize());
+			
+			let mainMenu = document.querySelector(".mainMenu");
+			mainMenu.addEventListener("click", () => {
+				this.game.exit();
+			});
 
 			return true;
 		}
