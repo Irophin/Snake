@@ -1,0 +1,13 @@
+{
+  "title": "Very easy World",
+  "dimensions": [4, 4],
+  "delay": 500,
+  "direction": "Right",
+  "walls":[],
+  "food":[
+    [3, 0]
+  ],
+  "snake":[
+    [2, 0], [1, 0], [0, 0]
+  ]
+}

@@ -13,9 +13,11 @@ export class SnakeGame {
     running;
     startTime;
     lastUpdate;
+    score;
 
     board;
     map;
+    level;
 
     popup;
     binds;
@@ -35,7 +37,17 @@ export class SnakeGame {
 
         this.board.setMap(this.map);
         await this.board.initBoard(500);
-        this.board.drawSnake(this.snake, this.direction, 1);
+        this.board.drawSnake(this.snake, this.direction, 1)
+
+        this.score = 0;
+        let highScore = localStorage.getItem(this.level + '.bestScore');
+        if (highScore === null) {
+            highScore = 0;
+        }
+
+        document.querySelector('.level-value').textContent = this.level;
+        document.querySelector('.highscore-value').textContent = highScore;
+        document.querySelector('.speed-value').textContent = Math.round(this.delay) + ' ms';
     }
 
     setSettings(settings) {
@@ -101,6 +113,7 @@ export class SnakeGame {
     }
 
     start() {
+        this.score = 0;
         this.loadConfig(this.settings);
         this.board.setMap(this.map);
         this.board.drawBoard(this.walls, this.foods);
@@ -183,6 +196,7 @@ export class SnakeGame {
         }
 
         if (this.isFood(head)) {
+            this.score++;
             this.generateFood();
             this.updateScore();
         } else {
@@ -197,7 +211,22 @@ export class SnakeGame {
         this.board.drawSnake(this.snake, this.direction);
         this.turning = false;
         this.lastUpdate = Date.now();
-        this.delay = (this.initialDelay - (this.initialDelay / 100)) / (1 + Math.exp(0.03 * ((Date.now() - this.startTime) / 300 - 200))) + (this.initialDelay / 100);
+
+        this.delay = (this.initialDelay - (this.initialDelay / 2)) / (1 + Math.exp(0.03 * ((Date.now() - this.startTime) / 300 - 200))) + (this.initialDelay / 2);
+
+        document.querySelector('.speed-value').textContent = Math.round(this.delay) + ' ms';
+        let min = Math.floor((Date.now() - this.startTime) / 60000);
+        min = min < 10 ? '0' + min : min;
+        let sec = Math.floor((Date.now() - this.startTime) / 1000) % 60;
+        sec = sec < 10 ? '0' + sec : sec;
+        document.querySelector('.time-value').textContent = min + ':' + sec;
+
+        let bestScore = localStorage.getItem(this.level + '.bestScore');
+        if (bestScore == null || bestScore < this.score) {
+            localStorage.setItem(this.level + '.bestScore', this.score);
+        }
+        document.querySelector('.highscore-value').textContent = localStorage.getItem(this.level + '.bestScore');
+
         window.requestAnimationFrame(() => this.moveSnake());
     }
 
@@ -263,7 +292,7 @@ export class SnakeGame {
     }
 
     updateScore() {
-        this.popup.score.textContent = this.snake.length;
+        this.popup.score.textContent = this.score;
     }
 
 }

@@ -1,6 +1,11 @@
 {
 	"levels" : [
 		{
+			"title": "Très simple",
+			"href": "#level-4",
+			"json": "4.json"
+		},
+		{
 			"title": "Simple",
 			"href": "#level-1",
 			"json": "1.json"

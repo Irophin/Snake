@@ -33,18 +33,17 @@ export class Snake{
 	
 	constructor(){
 		this.container = document.querySelector("main");
-		this.game = new SnakeGame(this.binds);	
+		this.game = new SnakeGame(this.binds);
 	}
 
 	async openMenu(){
-
 
 		let nav = document.querySelector("nav");
 
 		if (nav){
 			nav.classList.add("close");
 
-			let promise = new Promise((resolve, reject) => {
+			let promise = new Promise((resolve,) => {
 				setTimeout(() => {
 					nav.remove();
 					resolve();
@@ -100,7 +99,7 @@ export class Snake{
 
 	async loadGame(href){
 
-		let level = this.levels.find((level) => level.href == href);
+		let level = this.levels.find((level) => level.href === href);
 
 		if (!level){
 			return false
@@ -108,6 +107,7 @@ export class Snake{
 
 		let settings = await SnakeSettings.loadSettings(level.json);
 		this.game.setSettings(settings);
+		this.game.level = level.json.split('.')[0];
 		
 		return true;
 	}
